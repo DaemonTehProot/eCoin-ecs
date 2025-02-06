@@ -205,23 +205,24 @@ function admin_command_passwd({id, pass})
 /**
  * @param {{pId: number, quant: number, tax: number, notes?: string, ids: number[]}} args 
  */
-/*function admin_command_trans({pId, quant, tax, notes, ids})
+async function admin_command_trans({pId, quant, tax, notes, ids})
 {
     const now = Date.now();
-
+    
     if(typeof pId !== 'number') error(422, "Missing/Malformed value args.pId");
     if(typeof tax !== 'number') error(422, "Missing/Malformed value args.tax");
     if(typeof quant !== 'number') error(422, "Missing/Malformed value args.quant");
-
+    
+    const trans = [];
     verify_array_type(ids, 'number', 'args.ids');
     
-    const p = querys.getPriceById.get(pId);
+    const p = await querys.getPriceById.bind(pId).first();
     if(!p) error(422, "Invalid price identifier");
 
 
     for(const uId of ids)
     {
-        const u = querys.getUserById.get(uId);
+        const u = await querys.getUserById.bind(uId).first();
         if(!u) continue;
 
         let total = quant*p.cost;
@@ -229,20 +230,19 @@ function admin_command_passwd({id, pass})
         if(p.type === 'Purchase') {
             if((total+u.balance) < 0) error(422, `Not enough eCoins on user ${u.name}`);
 
-            querys.userTransact.run(total, now, uId);
-            querys.addPurchase.run(uId, u.cId, p.desc, notes ?? '', quant, now);
+            trans.push(querys.userTransact.bind(total, now, uId));
+            trans.push(querys.addPurchase.bind(uId, u.cId, p.desc, notes ?? '', quant, now));
         } else {
             if(p.type === 'Wage') total -= total*tax;
 
-            querys.adminTransact.run(total, total, now, uId);
-            if(u.tId) querys.teamTransact.run(total, now, u.tId);
+            trans.push(querys.adminTransact.bind(total, total, now, uId));
+            if(u.tId) trans.push(querys.teamTransact.bind(total, now, u.tId));
         }
 
-        querys.addLog.run(uId, p.desc, p.type, notes ?? '', u.balance+total, total, now);
+        trans.push(querys.addLog.bind(uId, p.desc, p.type, notes ?? '', u.balance+total, total, now));
     }
 
-    save_database();
-    return Response.json({});
+    return save_database(trans).then(v => Response.json({}));
 }
 
 /**
