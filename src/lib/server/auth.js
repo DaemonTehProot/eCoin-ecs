@@ -18,7 +18,7 @@ const asyncError = (status, message) => Response.json({ message }, { status });
  * @param {string} pass
  * @param {string|undefined} passNew 
  * @param {string} creds 
- * @param {Map<string, {ctx:unknown, timer:number}>} tokMap 
+ * @param {Map<string, {ctx:unknown, timer:NodeJS.Timeout}>} tokMap 
  * @param {string} path
  * @param {unknown} ctx 
  * 
@@ -31,7 +31,7 @@ export function auth_generic_request(pass, passNew, creds, tokMap, path, ctx)
     return new Promise((resolve) => 
     {
         const [salt, key] = creds.split(':');
-        scrypt(pass, salt, 64, (err, userBuf) =>
+        scrypt(pass, salt, 64, async (err, userBuf) =>
         {
             if(err) return resolve(asyncError(500, "Unable to hash password"));
 
@@ -44,11 +44,11 @@ export function auth_generic_request(pass, passNew, creds, tokMap, path, ctx)
             if(passNew) 
             {
                 const hashed = create_password(passNew);
-                
-                if(!ctx) querys.updateAdminPass.run(hashed);
-                else querys.updateUserPass.run(hashed, ctx);
-                
-                save_database();
+                await save_database([
+                    !ctx ? 
+                        querys.updateAdminPass.bind(hashed) :
+                        querys.updateUserPass.bind(hashed, ctx)
+                ]);
             }
 
             tokMap.set(sToken, oToken);
