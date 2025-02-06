@@ -1,10 +1,11 @@
 "use strict";
 
 import { error } from '@sveltejs/kit';
-import { querys, db, save_database } from '$lib/server/database';
+import { querys, save_database } from '$lib/server/database';
 
-import { verify_array_type, verify_object_types, rightFit, group_by_prop } from '$lib/server/utils';
+import { verify_array_type, verify_object_types, rightFit } from '$lib/server/utils';
 import { validate_token, auth_generic_request, activeAdmins, create_password } from '$lib/server/auth';
+import { env } from '$env/dynamic/private';
 
 
 /**
@@ -24,42 +25,41 @@ function auth_admin_request({pass, passNew})
 /**
  * @param {Record<string, {time: number, ids: number[]}>} args
 */
-function admin_command_get(args)
+async function admin_command_get(args)
 {
-    let obj, data = {};
+    const data = {}, trans = [];
+    const entry = Object.entries(args);
 
-    for(const table in args)
+    for(const [table, {time}] of entry)
     {
-        const { time, ids } = args[table];
         if(typeof time != 'number') error(422, `Missing/Invalid value "args[${table}].time"`);
 
         switch(table) {    
-        case 'teams':  obj = querys.getTeamMulti.all(time); break;
-        case 'prices': obj = querys.getPriceMulti.all(time); break;
+        case 'teams':  trans.push(querys.getTeamMulti.bind(time)); break;
+        case 'prices': trans.push(querys.getPriceMulti.bind(time)); break;
 
-        case 'users':   obj = querys.getUserMulti.all(time); break;
-        case 'classes': obj = querys.getClassMulti.all(time); break;
+        case 'users':   trans.push(querys.getUserMulti.bind(time)); break;
+        case 'classes': trans.push(querys.getClassMulti.bind(time)); break;
 
-        case 'activeBids': obj = querys.getActiveBidsMulti.all(time); break;
-        case 'placedBids': obj = querys.getPlacedBidsMulti.all(time); break;
+        case 'activeBids': trans.push(querys.getActiveBidsMulti.bind(time)); break;
+        case 'placedBids': trans.push(querys.getPlacedBidsMulti.bind(time)); break;
 
-        case 'purchases': obj = querys.getPurchasesMulti.all(time); break;
+        case 'logs':      trans.push(querys.getLogsMulti.bind(time)); break;
+        case 'purchases': trans.push(querys.getPurchasesMulti.bind(time)); break;
 
-        default:
-            if(table === 'logs') 
-            {
-                obj = querys.getLogsMulti.all(time);
-                if(obj.length) data[table] = { old: [], data: obj };
-            }
-            continue;
+        default: error(422, `Unknown table "${table}"`);
         }
+    }
 
+    const res = (await save_database(trans)).map(v => v.results);
+    
+    let i = 0;
+    for(const [table, {ids}] of entry) 
+    {
         verify_array_type(ids, 'number', `args[${table}].ids`);
-
-        const cur = db.prepare(`SELECT id FROM ${table}`).raw(true).all().flat();
-        const old = ids.filter(v => !cur.includes(v));
-
-        data[table] = { old, data: obj };
+        const cur = (await env['eCoin_DB']?.prepare(`SELECT id FROM ${table}`).raw()).flat();
+    
+        data[table] = { old: ids.filter(v => !cur.includes(v)), data: res[i++] };
     }
 
     return Response.json(data);
