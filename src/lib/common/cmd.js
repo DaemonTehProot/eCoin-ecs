@@ -3,11 +3,10 @@ import { errorPopup } from "./utils";
 
 /** 
  * @param {string} target 
- * @param {import("svelte/store").Writable<any>} serverData
+ * @param {any} sData
  */
-export function gen_get_args(target, serverData)
+export function gen_get_args(target, sData)
 {
-    const sData = get(serverData);
     const targets = target.split('-');
 
     return Object.fromEntries(
@@ -57,7 +56,7 @@ export function update_server_data(json, serverData)
  */
 export async function refetch_server(target, folder, serverData, onFail = console.error)
 {
-    const args = gen_get_args(target, serverData);
+    const args = gen_get_args(target, get(serverData));
     
     const res = await fetch(`${folder}/api/get`, { body: JSON.stringify(args), method: 'POST' });
     if(!res.ok) return onFail && onFail(await res.json());
