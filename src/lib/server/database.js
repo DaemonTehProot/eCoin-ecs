@@ -9,21 +9,21 @@ import qLines from '$lib/server/sql/querys';
 export const querys = {};
 
 
-export function db_init()
+export async function db_init()
 {
     log_status('Setting Up Database');
-    env['eCoin_DB']?.exec('PRAGMA foreign_keys = ON');
+    await env['eCoin_DB']?.exec('PRAGMA foreign_keys = ON');
 }
 
 
-export function sql_file_init()
+export async function sql_file_init()
 {
     log_status('Running init files');
 
     for(const line of qLines.split('\n')) 
     { 
         const [name, cmd] = line.trim().split(':'); 
-        querys[name] = env['eCoin_DB']?.prepare(cmd); 
+        if(name.length) querys[name] = env['eCoin_DB']?.prepare(cmd.split(';')[0]);
     }
 
     Object.freeze(querys);

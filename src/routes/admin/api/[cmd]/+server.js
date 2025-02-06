@@ -1,21 +1,22 @@
 "use strict";
 
+import { env } from '$env/dynamic/private';
+
 import { error } from '@sveltejs/kit';
 import { querys, save_database } from '$lib/server/database';
 
 import { verify_array_type, verify_object_types, rightFit } from '$lib/server/utils';
 import { validate_token, auth_generic_request, activeAdmins, create_password } from '$lib/server/auth';
-import { env } from '$env/dynamic/private';
 
 
 /**
  * @param {{pass: string, passNew?: string}} args
 */
-function auth_admin_request({pass, passNew})
+async function auth_admin_request({pass, passNew})
 {
     if(!pass || !pass.length) error(422, 'Missing/Malformed value: args.pass');
 
-    const creds = querys.getAdminCreds.get();
+    const creds = await querys.getAdminCreds.first();    
     if(!creds) error(500, "No admin list found");
 
     return auth_generic_request(pass, passNew, creds.passwd, activeAdmins, '/admin', null);
@@ -67,7 +68,7 @@ async function admin_command_get(args)
 
 //>=========================================================================<//
 
-const requiredAddParams = Object.freeze({
+/*const requiredAddParams = Object.freeze({
     users: { cId: 'number', tId: 'number.null', name: 'string', pass: 'string' },
     classes: { name: 'string', mp: 'number' },
 
@@ -91,13 +92,13 @@ const validSetParams = Object.freeze({
 
     purchases: { cId: 'number' },
     activeBids: { desc: 'string', amount: 'number' }
-});
+});*/
 
 
 /**
  * @param {{table: string, p: Record<string, any>[]}} args 
 */
-function admin_command_add({table, p})
+/*function admin_command_add({table, p})
 {  
     const updated = Date.now();
 
@@ -142,12 +143,12 @@ function admin_command_add({table, p})
 
     save_database();
     return Response.json({});
-}
+}*/
 
 /**
  * @param {Record<string, number[]>} args
 */
-function admin_command_del(args)
+/*function admin_command_del(args)
 {    
     for(const [table, ids] of Object.entries(args))
     {
@@ -164,7 +165,7 @@ function admin_command_del(args)
 /**
  * @param {{table: string, ids: number[], p: Record<string, any>}} args 
 */
-function admin_command_set({table, ids, p}) 
+/*function admin_command_set({table, ids, p}) 
 {  
     const updated = Date.now();
 
@@ -185,7 +186,7 @@ function admin_command_set({table, ids, p})
 /**
  * @param {{id: number, pass: string}} args 
 */
-function admin_command_passwd({id, pass})
+/*function admin_command_passwd({id, pass})
 {
     const updated = Date.now();
 
@@ -203,7 +204,7 @@ function admin_command_passwd({id, pass})
 /**
  * @param {{pId: number, quant: number, tax: number, notes?: string, ids: number[]}} args 
  */
-function admin_command_trans({pId, quant, tax, notes, ids})
+/*function admin_command_trans({pId, quant, tax, notes, ids})
 {
     const now = Date.now();
 
@@ -246,7 +247,7 @@ function admin_command_trans({pId, quant, tax, notes, ids})
 /**
  * @param {{ bId: number, max: number }} args
 */
-function admin_command_bid({bId, max})
+/*function admin_command_bid({bId, max})
 {
     const now = Date.now();
     
@@ -280,7 +281,7 @@ function admin_command_bid({bId, max})
  * @param {{uId: number, desc: string, 
  *          notes: string, total: number, type: string}} args 
 */
-function admin_command_undo({uId, desc, total, type})
+/*function admin_command_undo({uId, desc, total, type})
 {
     const now = Date.now();
     
@@ -322,14 +323,14 @@ export async function POST({cookies, request, params})
     case 'ping': return Response.json(Date.now());
         
     case 'get': return admin_command_get(args);
-    case 'add': return admin_command_add(args);
+    /*case 'add': return admin_command_add(args);
     case 'del': return admin_command_del(args);
     case 'set': return admin_command_set(args);
 
     case 'bid': return admin_command_bid(args);
     case 'undo': return admin_command_undo(args);
     case 'trans': return admin_command_trans(args);
-    case 'passwd': return admin_command_passwd(args);
+    case 'passwd': return admin_command_passwd(args);*/d
     }
 
     error(422, `Invalid command: ${params.cmd}`);

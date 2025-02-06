@@ -19,6 +19,6 @@ if(!Array.prototype.toSorted)
 
 if(!building)
 {
-    db_init();
-    sql_file_init();
+    await db_init();
+    await sql_file_init();
 }
