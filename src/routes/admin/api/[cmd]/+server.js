@@ -165,8 +165,9 @@ function admin_command_del(args)
 /**
  * @param {{table: string, ids: number[], p: Record<string, any>}} args 
 */
-/*function admin_command_set({table, ids, p}) 
+function admin_command_set({table, ids, p}) 
 {  
+    const trans = [];
     const updated = Date.now();
 
     verify_array_type(ids, 'number', 'args.ids');
@@ -176,27 +177,27 @@ function admin_command_del(args)
         verify_object_types(p, validSetParams[table]);
         const argsStr = Object.keys(p).reduce((p,k) => p + `${k}=?,`, '');
         
-        db.prepare(`UPDATE ${table} SET ${argsStr} updated=${updated} WHERE id IN (${ids})`).run(...Object.values(p));
+        trans.push(
+            env['eCoin_DB']?.prepare(
+            `UPDATE ${table} SET ${argsStr} updated=${updated} WHERE id IN (${ids})`).bind(...Object.values(p))
+        );
     }
 
-    save_database();
-    return Response.json({});
+    return save_database(trans).then(v => Response.json({}));
 }
 
 /**
  * @param {{id: number, pass: string}} args 
 */
-/*function admin_command_passwd({id, pass})
+function admin_command_passwd({id, pass})
 {
     const updated = Date.now();
 
     if(typeof id !== 'number') error(422, "Missing/Malformed value: args.id");
     if(typeof pass !== 'string') error(422, "Missing/Malformed value: args.pass");
 
-    db.prepare(`UPDATE users SET passwd=?, updated=${updated} WHERE id=${id}`).run(create_password(pass));
-
-    save_database();
-    return Response.json({});
+    const stmt = env['eCoin_DB']?.prepare(`UPDATE users SET passwd=?, updated=${updated} WHERE id=${id}`);
+    return save_database([stmt.bind(create_password(pass))]).then(v => Response.json({}));
 }
 
 //<==================================================================================>//
