@@ -1,26 +1,7 @@
 "use strict";
 
 import { error } from "@sveltejs/kit";
-
 import { querys } from "./database";
-import { appendFileSync } from "node:fs";
-
-const FILE_ERROR = 'data/logs/error';
-const FILE_STATUS = 'data/logs/status';
-
-
-/**
- * Write to stderr and FILE_ERROR
- * @param {Error} e 
- */
-export function log_error(e)
-{
-    const now = new Date().toISOString();
-    const msg = `[${now}]\n${e.stack}\n`;
-
-    appendFileSync(FILE_ERROR, msg);
-    console.log(`\x1b[91m${msg}\x1b[0m`); // Red text
-}
 
 /**
  * Write to stdout and FILE_STATUS
