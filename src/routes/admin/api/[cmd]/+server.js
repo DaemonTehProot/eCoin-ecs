@@ -63,7 +63,6 @@ async function admin_command_get(args)
         data[table] = { old: ids.filter(v => !cur.includes(v)), data: res[i++] };
     }
 
-    console.log(data);
     return Response.json(data);
 }
 
@@ -149,18 +148,18 @@ function admin_command_add({table, p})
 /**
  * @param {Record<string, number[]>} args
 */
-/*function admin_command_del(args)
+function admin_command_del(args)
 {    
+    const trans = [];
     for(const [table, ids] of Object.entries(args))
     {
         if(!validDeleteTables.includes(table)) continue;
         verify_array_type(ids, 'number', `args.${table}`);
 
-        db.exec(`DELETE FROM ${table} WHERE id IN (${ids})`);
+        trans.push(env['eCoin_DB']?.prepare(`DELETE FROM ${table} WHERE id IN (${ids})`));
     }
 
-    save_database();
-    return Response.json({});
+    return save_database(trans).then(v => Response.json({}));
 }
 
 /**
