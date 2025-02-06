@@ -2,6 +2,7 @@ export default
 `getAdminCreds: SELECT passwd FROM admin;;
 getUserCredsByName: SELECT id, passwd FROM users WHERE name=?;;
 
+getLogById: SELECT id, uId, desc, type, total, updated FROM logs WHERE id=?;;
 getUserById: SELECT id, cId, tId, name, balance, earnings, updated FROM users WHERE id=?;;
 
 getClassMulti: SELECT id, mp, name, updated FROM classes WHERE updated>?;;

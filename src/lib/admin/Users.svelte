@@ -120,12 +120,11 @@
         }
     }
 
-    async function undo_log({uId, desc, type, total}) 
+    async function undo_log(id) 
     {
         if(await confirmMsg(`Undo selected transaction?`))
         {
-            let total2 = +(total.split('$')[1]) * 100 * (total[0]=='-' ? -1 : 1);
-            const body = JSON.stringify({ uId, desc, type, total: total2 });
+            const body = JSON.stringify({ id });
 
             spinner.set(true);
             const res = await fetch('/admin/api/undo', { body, method: 'POST' });
@@ -405,13 +404,14 @@
 
                 <ul class="font-semibold divide-y divide-gray-200 dark:divide-gray-700">
                 {#each filter_logs(userLogs.filter(v => v.uId===id), value) as elm}
-                {@const {date, desc, type, notes, old, total} = elm}
+                {@const {id, date, desc, type, notes, old, total} = elm}
+
                     <li class={twMerge(`px-3 py-1 w-full h-fit`, 
                         (in_state==="undo") && 'hover:bg-gray-200 dark:hover:bg-gray-700')}
                     >
                         <button class={twMerge(`w-full h-fit grid grid-cols-[4fr_1fr] items-center 
                             cursor-default`, (in_state==="undo") && "hover:cursor-pointer")}
-                            on:click={() => (in_state==="undo") && undo_log(elm)}
+                            on:click={() => (in_state==="undo") && undo_log(id)}
                         >
                             <div class="grid grid-cols-1 md:grid-cols-[1fr_3fr] text-left">
                                 <p class="text-xs sm:text-base font-medium pr-4">{@html date}</p>

@@ -280,34 +280,28 @@ async function admin_command_bid({bId, max})
 }
 
 /**
- * @param {{uId: number, desc: string, 
- *          notes: string, total: number, type: string}} args 
+ * @param {{id: number}} args 
 */
-/*function admin_command_undo({uId, desc, total, type})
+async function admin_command_undo({id})
 {
     const now = Date.now();
-    
-    if(typeof uId   !== 'number') error(422, "Missing/Malformed value: args.uId");
-    if(typeof type  !== 'string') error(422, "Missing/Malformed value: args.type");
-    if(typeof desc  !== 'string') error(422, "Missing/Malformed value: args.desc");
-    if(typeof total !== 'number') error(422, "Missing/Malformed value: args.total");
+    let {uId, desc, total, type} = await querys.getLogById.bind(id).first();
 
     total = -total;
-    const u = querys.getUserById.get(uId);
+    const u = await querys.getUserById.bind(uId).first();
 
+    const trans = [];
     if(type !== 'Wage' && type !== 'Fine') 
     {
-        querys.userTransact.run(total, now, uId);
+        trans.push(querys.userTransact.bind(total, now, uId));
     } else 
     {
-        querys.adminTransact.run(total, total, now, uId);
-        if(u.tId) querys.teamTransact.run(total, now, u.tId);
+        trans.push(querys.adminTransact.bind(total, total, now, uId));
+        if(u.tId) trans.push(querys.teamTransact.bind(total, now, u.tId));
     }
 
-    querys.addLog.run(uId, `Undo: "${desc}"`, 'Undo', '', u.balance+total, total, now);
-
-    save_database();
-    return Response.json({});
+    trans.push(querys.addLog.bind(uId, `Undo: "${desc}"`, 'Undo', '', u.balance+total, total, now));
+    return save_database(trans).then(v => Response.json({}));
 }
 
 //<===============================================================================>//
@@ -330,7 +324,7 @@ export async function POST({cookies, request, params})
     case 'set': return admin_command_set(args);
 
     case 'bid': return admin_command_bid(args);
-    //case 'undo': return admin_command_undo(args);
+    case 'undo': return admin_command_undo(args);
     case 'trans': return admin_command_trans(args);
     case 'passwd': return admin_command_passwd(args);
     }
