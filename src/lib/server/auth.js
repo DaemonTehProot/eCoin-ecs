@@ -8,8 +8,8 @@ import { randomBytes, scrypt, scryptSync, timingSafeEqual } from 'node:crypto';
 /** @type {(status: number, message: string) => Response} */
 const asyncError = (status, message) => Response.json({ message }, { status });
 
-/** @type {Map<string, {timer: number, ctx: unknown}>} */ export const activeUsers = new Map();
-/** @type {Map<string, {timer: number, ctx: unknown}>} */ export const activeAdmins = new Map();
+/** @type {Map<string, {timer: NodeJS.Timeout, ctx: unknown}>} */ export const activeUsers = new Map();
+/** @type {Map<string, {timer: NodeJS.Timeout, ctx: unknown}>} */ export const activeAdmins = new Map();
 
 
 
@@ -71,7 +71,7 @@ export function create_password(pass)
 /**
  * 
  * @param {import('@sveltejs/kit').Cookies} cookie
- * @param {Map<string, {ctx: unknown, timer: number}>} tokMap 
+ * @param {Map<string, {ctx: unknown, timer: NodeJS.Timeout}>} tokMap 
  */
 export function validate_token(cookie, tokMap)
 {
