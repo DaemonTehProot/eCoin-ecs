@@ -4,8 +4,8 @@
     import { getContext } from "svelte";
     import { inputClass } from "flowbite-svelte/Radio.svelte";
 
-    import { initString, refetch_server, send_add_generic, send_del_generic, send_set_generic } from "$lib/common/cmd";
     import { int2cash, int2color, add_suffix, object_map, errorPopup } from "$lib/common/utils";
+    import { initString, refetch_server, send_add_generic, send_del_generic, send_set_generic, gen_get_args } from "$lib/common/cmd";
 
     import { Button, Card, Dropdown, DropdownItem, Input, FloatingLabelInput, Heading, Modal, Spinner, ButtonGroup, InputAddon } from "flowbite-svelte";
     import { AngleLeftOutline, AngleRightOutline, TrashBinOutline, PlusOutline, EditOutline, SearchOutline, UndoOutline, LockOutline, FileExportOutline } from "flowbite-svelte-icons";
@@ -146,7 +146,7 @@
         const { promise, resolve, reject } = Promise.withResolvers();
         if(!userLogs.length) logPromise = promise;
         
-        const arg = { logs: { time: userLogs.reduce((p,c) => Math.max(p,c?.updated ?? 0), 0) }}; 
+        const arg = gen_get_args('logs', { logs: userLogs });
         const res = await fetch('/admin/api/get', { body: JSON.stringify(arg), method: 'POST'});
         
         if(res.ok) {
