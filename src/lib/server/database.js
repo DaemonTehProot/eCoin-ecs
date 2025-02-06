@@ -6,8 +6,6 @@ import { log_status } from "$lib/server/utils";
 import cLines from '$lib/server/sql/create';
 import qLines from '$lib/server/sql/querys';
 
-
-export const trans = []; 
 export const querys = {};
 
 
@@ -36,7 +34,6 @@ export function sql_file_init()
 
 
 /** @returns {Promise<any>} */
-export function save_database()
-{
-    return env['eCoin_DB']?.batch(trans)?.then(() => trans.length=0);
+export function save_database(trans) {
+    return env['eCoin_DB']?.batch(trans);
 }
