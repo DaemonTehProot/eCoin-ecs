@@ -12,9 +12,7 @@ export const querys = {};
 export function db_init()
 {
     log_status('Setting Up Database');
-
     env['eCoin_DB']?.exec('PRAGMA foreign_keys = ON');
-    env['eCoin_DB']?.exec('PRAGMA journal_mode = WAL');
 }
 
 
@@ -33,7 +31,5 @@ export function sql_file_init()
 
 
 
-/** @returns {Promise<any>} */
-export function save_database(trans) {
-    return env['eCoin_DB']?.batch(trans);
-}
+/** @type {(v: any[]) => Promise<{meta: any, results: any}[]>} */
+export const save_database = (trans) => env['eCoin_DB']?.batch(trans);

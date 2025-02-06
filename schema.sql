@@ -1,6 +1,5 @@
-export default `
-PRAGMA foreign_keys = ON;;
-CREATE TABLE admin(passwd text NOT null);;
+PRAGMA foreign_keys = ON;
+CREATE TABLE admin(passwd text NOT null);
 
 CREATE TABLE classes(
     id integer NOT null PRIMARY KEY,
@@ -9,7 +8,7 @@ CREATE TABLE classes(
     name text NOT null,
 
     updated integer NOT null
-);;
+);
 
 CREATE TABLE teams(
     id integer NOT null PRIMARY KEY,
@@ -19,7 +18,7 @@ CREATE TABLE teams(
     balance number NOT null,
 
     updated integer NOT null
-);;
+);
 
 CREATE TABLE prices(
     id integer NOT null PRIMARY KEY,
@@ -31,7 +30,7 @@ CREATE TABLE prices(
     cost text NOT null,
 
     updated integer NOT null
-);;
+);
 
 
 CREATE TABLE users(
@@ -47,7 +46,7 @@ CREATE TABLE users(
     passwd text NOT null UNIQUE,
 
     updated integer NOT null
-);;
+);
 
 CREATE TABLE logs(
     id integer NOT null PRIMARY KEY,
@@ -62,7 +61,7 @@ CREATE TABLE logs(
  
     updated integer NOT null,
     date text NOT null DEFAULT (datetime('now', 'localtime'))
-);;
+);
 
 
 CREATE TABLE purchases(
@@ -76,7 +75,7 @@ CREATE TABLE purchases(
 
     quant number NOT null,
     updated integer NOT null
-);;
+);
 
 
 CREATE TABLE activeBids(
@@ -89,7 +88,7 @@ CREATE TABLE activeBids(
     amount number NOT null,
     
     updated integer NOT null
-);;
+);
 
 CREATE TABLE placedBids(
     id integer NOT null PRIMARY KEY,
@@ -100,4 +99,4 @@ CREATE TABLE placedBids(
 
     amount number NOT null,
     updated integer NOT null
-)`;
+);
