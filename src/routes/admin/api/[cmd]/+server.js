@@ -63,12 +63,13 @@ async function admin_command_get(args)
         data[table] = { old: ids.filter(v => !cur.includes(v)), data: res[i++] };
     }
 
+    console.log(data);
     return Response.json(data);
 }
 
 //>=========================================================================<//
 
-/*const requiredAddParams = Object.freeze({
+const requiredAddParams = Object.freeze({
     users: { cId: 'number', tId: 'number.null', name: 'string', pass: 'string' },
     classes: { name: 'string', mp: 'number' },
 
@@ -92,14 +93,15 @@ const validSetParams = Object.freeze({
 
     purchases: { cId: 'number' },
     activeBids: { desc: 'string', amount: 'number' }
-});*/
+});
 
 
 /**
  * @param {{table: string, p: Record<string, any>[]}} args 
 */
-/*function admin_command_add({table, p})
+function admin_command_add({table, p})
 {  
+    const trans = [];
     const updated = Date.now();
 
     if(!Array.isArray(p)) error(422, "Missing/Malformed value: args.p");
@@ -110,40 +112,39 @@ const validSetParams = Object.freeze({
     case 'users': 
         p.forEach(p => {
             verify_object_types(p, requiredAddParams.users);
-            querys.addUser.run(p.cId, p.tId, p.name, create_password(p.pass), updated); 
+            trans.push(querys.addUser.bind(p.cId, p.tId, p.name, create_password(p.pass), updated)); 
         }); break;
 
     case 'classes': 
         p.forEach(p => {
             verify_object_types(p, requiredAddParams.classes);
-            querys.addClass.run(p.mp, p.name, updated);
+            trans.push(querys.addClass.bind(p.mp, p.name, updated));
         }); break;
 
     case 'teams': 
         p.forEach(p => {
             verify_object_types(p, requiredAddParams.teams);
-            querys.addTeam.run(p.cId, p.name, updated);
+            trans.push(querys.addTeam.bind(p.cId, p.name, updated));
         }); break;
 
     case 'prices': 
         p.forEach(p => {
             verify_object_types(p, requiredAddParams.prices);
             verify_array_type(p.cost, 'number', 'args.p.cost');
-            querys.addPrice.run(p.cId, p.type, p.desc, JSON.stringify(rightFit(p.cost, 8)), updated);
+            trans.push(querys.addPrice.bind(p.cId, p.type, p.desc, JSON.stringify(rightFit(p.cost, 8)), updated));
         }); break;
 
     case 'activeBids':
         p.forEach(p => {
             verify_object_types(p, requiredAddParams.activeBids);
-            querys.addActiveBid.run(p.cId, p.amount, p.desc, '', updated);
+            trans.push(querys.addActiveBid.bind(p.cId, p.amount, p.desc, '', updated));
         }); break;
 
     default: error(422, "Missing/Malformed value: args.table");
     }
 
-    save_database();
-    return Response.json({});
-}*/
+    return save_database(trans).then(v => Response.json({}));
+}
 
 /**
  * @param {Record<string, number[]>} args
@@ -323,14 +324,14 @@ export async function POST({cookies, request, params})
     case 'ping': return Response.json(Date.now());
         
     case 'get': return admin_command_get(args);
-    /*case 'add': return admin_command_add(args);
-    case 'del': return admin_command_del(args);
+    case 'add': return admin_command_add(args);
+    /*case 'del': return admin_command_del(args);
     case 'set': return admin_command_set(args);
 
     case 'bid': return admin_command_bid(args);
     case 'undo': return admin_command_undo(args);
     case 'trans': return admin_command_trans(args);
-    case 'passwd': return admin_command_passwd(args);*/d
+    case 'passwd': return admin_command_passwd(args);*/
     }
 
     error(422, `Invalid command: ${params.cmd}`);
