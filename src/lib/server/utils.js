@@ -34,6 +34,13 @@ export const group_by_prop = (a, prop) =>
     Object.values(a.reduce((p,c) => { p[c[prop]] = [...p[c[prop]] || [], c]; return p; }, {}));
 
 
+/** @type {<T>(obj: T[], filterFn: (v:T,idx:number,arr:T[]) => Promise<boolean>|boolean) => Promise<T[]>} */
+export async function async_filter(obj, filterFn) 
+{
+    const res = await Promise.all(obj.map(filterFn));
+    return obj.filter((_, idx) => res[idx]);
+}
+
 /**
  * Assert that "obj" contains all of the fields present in "types". 
  * Then checks that the types in "obj" match those found in "types"

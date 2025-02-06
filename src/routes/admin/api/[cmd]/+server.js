@@ -5,7 +5,7 @@ import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
 import { querys, save_database } from '$lib/server/database';
 
-import { verify_array_type, verify_object_types, rightFit } from '$lib/server/utils';
+import { verify_array_type, verify_object_types, rightFit, async_filter } from '$lib/server/utils';
 import { validate_token, auth_generic_request, activeAdmins, create_password } from '$lib/server/auth';
 
 
@@ -248,34 +248,35 @@ async function admin_command_trans({pId, quant, tax, notes, ids})
 /**
  * @param {{ bId: number, max: number }} args
 */
-/*function admin_command_bid({bId, max})
+async function admin_command_bid({bId, max})
 {
     const now = Date.now();
     
     if(typeof bId !== 'number') error(422, "Missing/Malformed value: args.bId");
     if(typeof max !== 'number') error(422, "Missing/Malformed value: args.max");
 
-    const bid = querys.getBidById.get(bId);
-    const placed = querys.getPlacedByBidId.all(bId);
+    const bid = (await querys.getBidById.bind(bId).first());
+    const placed = (await querys.getPlacedByBidId.bind(bId).run()).results;
     
     // unique: bids are arranged into groups based on uId, then filtered by amount starting from bid.amount 
     // usable: bids then removed based on if user has enough money, then the top ones are taken with at most max chosen
 
     const unique = Object.values(placed.reduce((p,c) => { if(c.amount >= (p[c.uId]?.amount ?? -bid.amount)) p[c.uId] = c; return p }, {}));
-    const usable = unique.filter(v => v.amount <= querys.getUserById.get(v.uId).balance).sort((a,b) => b.amount - a.amount).splice(0, max);
+    
+    const _fmap = await async_filter(unique, async v => v.amount <= await querys.getUserById.bind(v.uId).first('balance'));
+    const usable = _fmap.sort((a,b) => b.amount - a.amount).splice(0, max);
 
+    const trans = [];
     for(const {uId, amount} of usable)
     {
-        const old = querys.getUserById.get(uId).balance;
+        const old = await querys.getUserById.bind(uId).first('balance');
 
-        querys.userTransact.run(-amount, now, uId);
-        querys.addLog.run(uId, bid.desc, 'Bid', bid.notes ?? '', old-amount, -amount, now);
+        trans.push(querys.userTransact.bind(-amount, now, uId));
+        trans.push(querys.addLog.bind(uId, bid.desc, 'Bid', bid.notes ?? '', old-amount, -amount, now));
     }
 
-    db.exec(`DELETE FROM activeBids WHERE id=${bId}`); 
-
-    save_database();
-    return Response.json(usable);
+    trans.push(env['eCoin_DB']?.prepare(`DELETE FROM activeBids WHERE id=${bId}`)); 
+    return save_database(trans).then(v => Response.json(usable));
 }
 
 /**
@@ -325,13 +326,13 @@ export async function POST({cookies, request, params})
         
     case 'get': return admin_command_get(args);
     case 'add': return admin_command_add(args);
-    /*case 'del': return admin_command_del(args);
+    case 'del': return admin_command_del(args);
     case 'set': return admin_command_set(args);
 
     case 'bid': return admin_command_bid(args);
-    case 'undo': return admin_command_undo(args);
+    //case 'undo': return admin_command_undo(args);
     case 'trans': return admin_command_trans(args);
-    case 'passwd': return admin_command_passwd(args);*/
+    case 'passwd': return admin_command_passwd(args);
     }
 
     error(422, `Invalid command: ${params.cmd}`);
