@@ -59,20 +59,24 @@ async function user_command_get({id, cId}, args)
         }
     }
 
-    const res = (await save_database(trans)).map(v => v.results);
+    const res = await save_database(trans);
+    const resObj = res.reduce((p,c,i) => { p[entry[i][0]] = c.results ?? []; return p; }, {}); 
 
-    let i = 0;
     for(const [table, {ids}] of entry) {
-        const obj = res[i++];
+        const obj = resObj[table];
 
         if(table.startsWith('lead')) {
             obj.forEach((v,i) => { v.id = i+1; });
             data[table] = { old: [1,2,3], data: obj };
-        } else {
+        } 
+        else if(['user','class'].includes(table)) {
+            data[table] = { old: [], data: obj };
+        }
+        else {
             verify_array_type(ids, 'number', `args[${table}].ids`);
             const cur = (await env['eCoin_DB']?.prepare(`SELECT id FROM ${table}`).raw()).flat();
     
-            data[table] = { old: ids.filter(v => !cur.includes(v)), data: res[i++] };
+            data[table] = { old: ids.filter(v => !cur.includes(v)), data: obj };
         }
     }
 
