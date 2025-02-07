@@ -68,14 +68,16 @@
 
     async function create_new_price()
     {
-        const desc =  document.querySelector(`input#price_desc`)?.value;
-        const cost = +document.querySelector(`input#price_cost`)?.value;
-        const perc = +document.querySelector(`input#price_perc`)?.value;
+        let desc =  document.querySelector(`input#price_desc`)?.value;
+        let cost = +document.querySelector(`input#price_cost`)?.value;
+        let perc = +document.querySelector(`input#price_perc`)?.value;
          
         if(!desc.length) { errorPopup.set('Enter something for description'); return; }
         
-        if(cost===0 || isNaN(cost)) { errorPopup.set("Enter a non-zero number for cost"); return; }
+        if(cost < 0 || isNaN(cost)) { errorPopup.set("Enter a positive number for cost"); return; }
         if(perc < 0 || isNaN(perc)) { errorPopup.set("Enter a positive number for percentage"); return; }
+
+        if(activeType !== 'Wage') cost = -cost;
 
         const costArray = [...Array(8)].map((_,idx) => ~~(Math.pow(1 + perc*.01, idx) * cost * 100));
         await send_add_generic('prices', [{ desc, cId: $activeClass, type: activeType, cost: costArray }], spinner, data);

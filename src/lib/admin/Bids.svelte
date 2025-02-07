@@ -39,9 +39,9 @@
         const cost = +document.querySelector('input#bid_cost')?.value * 100;
         
         if(desc.length === 0) { errorPopup.set(`Please set something for Description`); return; }
-        if(cost > 0 || isNaN(cost)) { errorPopup.set(`Please set a negative or zero value for Minimum Bid`); return; }
+        if(cost < 0 || isNaN(cost)) { errorPopup.set(`Please set a positive value for Minimum Bid`); return; }
 
-        send_add_generic('activeBids', [{ cId: $activeClass, amount: cost, desc }], spinner, data);
+        send_add_generic('activeBids', [{ cId: $activeClass, amount: -cost, desc }], spinner, data);
     }
 
     async function delete_bids()
