@@ -81,11 +81,11 @@ export function verify_array_type(obj, t, name)
  * @param {number} pId 
  * @param {number} cId 
  * @param {string[]} allowed 
- * @returns {any}
+ * @returns {Promise<any>}
  */
-export function validate_price(pId, cId, allowed)
+export async function validate_price(pId, cId, allowed)
 {
-    const p = querys.getPriceById.get(pId);
+    const p = await querys.getPriceById.bind(pId).first();
     if(!p) error(422, 'Invalid price identifier');
 
     if(p.cId !== cId) error(422, 'Mismatching class identifiers');
