@@ -24,7 +24,7 @@ export function session_logout(path)
    // if(getContext('status') !== 'Loading')
     {
         document.cookie = `sessionId=;Max-Age=0;Path=${path};domain=${location.hostname}`;
-        location.reload();
+        location.href = `${path}/login`
     }
 }
 
