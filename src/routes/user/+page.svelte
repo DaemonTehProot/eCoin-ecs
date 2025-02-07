@@ -95,7 +95,7 @@
         <Navbar fluid={true} class="text-black dark:text-white border-b px-4 sm:px-6" color="default">
             <NavBrand class="divide-gray-200 dark:divide-gray-700 divide-x cursor-default">
                 <button on:click|preventDefault={() => document.querySelector('main')?.scroll({top:0, behavior:'smooth'})}
-                    class="self-center whitespace-nowrap text-xl font-semibold sm:text-2xl pr-3"> ECoin </button>
+                    class="self-center whitespace-nowrap text-xl font-semibold sm:text-2xl pr-3">ECoin Bank </button>
 
                 <h3 class="text-md font-semibold leading-none text-gray-800 dark:text-gray-200 sm:text-lg pl-3 pt-1 hidden sm:block">
                     {`Good ${date_desc_from_hour()}, ${firstname}`}
