@@ -25,7 +25,6 @@
     const classLabel = "text-sm lg:text-base bg-gray-100 dark:bg-gray-900";
     const classInput = "w-full lg:text-lg border-gray-400 dark:border-gray-700";
 
-
     function sendForm(ev)
     {
         let body = {};
@@ -37,7 +36,7 @@
             if(hidden && !showHidden) continue;
 
             /** @type {HTMLInputElement|null} */
-            const val = document.querySelector(`#Input-${name}`);
+            const val = document.getElementById(`Input-${name}`);
 
             if(!(val?.value.length)) { colors[idx] = 'red'; return false; }
             body[json] = val.value;
