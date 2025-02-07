@@ -29,58 +29,51 @@ async function auth_user_request({name, pass, passNew})
  * got to be so god damn compilcated???
  * 
  * @param {{id: number, cId: number}} user
- * @param {Record<string, {time: number, ids: number[]}>} args 
+ * @param {{[k:string]: {time: number, ids: number[]}}} args 
  */
-function user_command_get({id, cId}, args)
+async function user_command_get({id, cId}, args)
 {
-    let obj, data = {};
+    const data = {}, trans = [];
+    const entry = Object.entries(args);
 
-    for(const table in args) 
+    for(const [table, {time}] of entry)
     {
-        const { time, ids } = args[table];
         if(typeof time != 'number') error(422, `Missing/Invalid value "args[${table}].time"`);
-
-
-        switch(table) {    
-        case 'teams':  obj = querys.getTeamSingle.all(time, cId); break;
-        case 'prices': obj = querys.getPriceSingle.all(time, cId); break;
         
-        case 'activeBids': obj = querys.getActiveBidsSingle.all(time, cId); break;
-        case 'placedBids': obj = querys.getPlacedBidsSingle.all(time, id); break;
-        
-        default:
-    //>-----------------------------------------------------------<//
-            switch(table) {
-            case 'logs': obj = querys.getLogsSingle.all(time, id); break;
+        switch(table) {
+        case 'logs': trans.push(querys.getLogsSingle.bind(time, id)); break;
             
-            case 'user':  obj = querys.getUserSingle.all(time, id); break;
-            case 'class': obj = querys.getClassSingle.all(time, cId); break;
+        case 'user':  trans.push(querys.getUserSingle.bind(time, id)); break;
+        case 'class': trans.push(querys.getClassSingle.bind(time, cId)); break;
             
-            default:
-        //>------------------------------------------------------------------<//
-                switch(table) {
-                case 'leadWealth': obj = querys.getLeadWealthSingle.all(cId); break;
-                case 'leadEarned': obj = querys.getLeadEarnedSingle.all(cId); break;
-                
-                default: continue;
-                }
+        case 'teams':  trans.push(querys.getTeamSingle.bind(time, cId)); break;
+        case 'prices': trans.push(querys.getPriceSingle.bind(time, cId)); break;
+            
+        case 'placedBids': trans.push(querys.getPlacedBidsSingle.bind(time, id)); break;
+        case 'activeBids': trans.push(querys.getActiveBidsSingle.bind(time, cId)); break;
 
-                obj.forEach((v,i) => { v.id = i+1; });
-                data[table] = { old: [1,2,3], data: obj };
+        case 'leadWealth': trans.push(querys.getLeadWealthSingle.bind(cId)); break;
+        case 'leadEarned': trans.push(querys.getLeadEarnedSingle.bind(cId)); break;
 
-                continue;
-            }
-            
-            if(obj.length) data[table] = { old: [], data: obj };
-            continue;
+        default: error(422, `Unknown table "${table}"`);
         }
+    }
 
-        verify_array_type(ids, 'number', `args[${table}.ids]`);
+    const res = (await save_database(trans)).map(v => v.results);
 
-        const cur = db.prepare(`SELECT id FROM ${table}`).raw(true).all().flat();
-        const old = ids.filter(v => !cur.includes(v));
+    let i = 0;
+    for(const [table, {ids}] of entry) {
+        const obj = res[i++];
 
-        data[table] = { old, data: obj };
+        if(table.startsWith('lead')) {
+            obj.forEach((v,i) => { v.id = i+1; });
+            data[table] = { old: [1,2,3], data: obj };
+        } else {
+            verify_array_type(ids, 'number', `args[${table}].ids`);
+            const cur = (await env['eCoin_DB']?.prepare(`SELECT id FROM ${table}`).raw()).flat();
+    
+            data[table] = { old: ids.filter(v => !cur.includes(v)), data: res[i++] };
+        }
     }
 
     return Response.json(data);
