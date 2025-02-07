@@ -14,7 +14,7 @@
     import Users from "$lib/admin/Users.svelte";
     import Teams from "$lib/admin/Teams.svelte";
     import Prices from "$lib/admin/Prices.svelte";
-    import Biddings from "$lib/admin/Biddings.svelte";
+    import Bids from "$lib/admin/Bids.svelte";
     import Requests from "$lib/admin/Requests.svelte";
 
 //>====================================================================<//
@@ -23,7 +23,7 @@
         { name: 'Users',    elm: Users,    ico: UserOutline       },
         { name: 'Teams',    elm: Teams,    ico: UsersGroupOutline },
         { name: 'Prices',   elm: Prices,   ico: DollarOutline     },
-        { name: 'Biddings', elm: Biddings, ico: CashOutline       },
+        { name: 'Bids',     elm: Bids,     ico: CashOutline       },
         { name: 'Requests', elm: Requests, ico: CartOutline       },
     ];
 

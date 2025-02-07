@@ -95,7 +95,7 @@
     function show_results(info) { bid_results=info; in_state='results'; }
 </script>
 
-<div id="tab-Biddings" class="flex flex-row gap-4 items-start">
+<div id="tab-Bids" class="flex flex-row gap-4 items-start">
 
     <Card class="text-center w-1/2 h-fit overflow-y-auto" size="none">
         <div class="mb-3 flex flex-row items-center justify-between">
