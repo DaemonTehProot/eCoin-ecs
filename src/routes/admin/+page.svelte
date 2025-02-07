@@ -20,11 +20,11 @@
 //>====================================================================<//
 
     const posts = [
-        { name: 'Users',                    elm: Users,    ico: UserOutline       },
-        { name: 'Teams',                    elm: Teams,    ico: UsersGroupOutline },
-        { name: 'Prices &\nTransaction',    elm: Prices,   ico: DollarOutline     },
-        { name: 'Bids',                     elm: Bids,     ico: CashOutline       },
-        { name: 'Requests',                 elm: Requests, ico: CartOutline       },
+        { name: 'Users',                     elm: Users,    ico: UserOutline       },
+        { name: 'Teams',                     elm: Teams,    ico: UsersGroupOutline },
+        { name: 'Prices &\nTransactions',    elm: Prices,   ico: DollarOutline     },
+        { name: 'Bids',                      elm: Bids,     ico: CashOutline       },
+        { name: 'Requests',                  elm: Requests, ico: CartOutline       },
     ];
 
     const activeBtnStyle = 'bg-gray-100 dark:bg-gray-700';
@@ -262,7 +262,7 @@
             >
                 <svelte:component this={ico} size="xl" class={(name===activeTab) && activeTextStyle}></svelte:component>
                 
-                <div class={twMerge('px-3 text-lg font-semibold hidden sm:block', 
+                <div class={twMerge('px-3 text-lg text-left font-semibold hidden sm:block', 
                     (name===activeTab) && activeTextStyle)}
                 >
                     {name}
