@@ -405,11 +405,11 @@
     
             {#if target?.uId}
             {@const user = users.find(v => v.id === target.uId)}    
-            {@const total = user.balance + (activePrice.cost[mp]*quantity)}
+            {@const total = user.balance + ~~(activePrice.cost[mp]*quantity*(activePrice.type==='Wage' ? .8 : 1))}
     
                 <div class="flex flex-row items-center font-semibold gap-2">
                     <p>Ending Balance:</p>
-                    <p class={int2color(total)}>{int2cash(~~(total * (activePrice.type==='Wage' ? .8 : 1)))}</p>
+                    <p class={int2color(total)}>{int2cash(total)}</p>
                 </div>
             {/if}
             </div>
