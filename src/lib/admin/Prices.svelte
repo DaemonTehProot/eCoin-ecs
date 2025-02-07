@@ -409,7 +409,7 @@
     
                 <div class="flex flex-row items-center font-semibold gap-2">
                     <p>Ending Balance:</p>
-                    <p class={int2color(total)}>{int2cash(total)}</p>
+                    <p class={int2color(total)}>{int2cash(~~(total * (activePrice.type==='Wage' ? .8 : 1)))}</p>
                 </div>
             {/if}
             </div>
