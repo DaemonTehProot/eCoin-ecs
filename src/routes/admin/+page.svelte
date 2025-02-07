@@ -33,7 +33,7 @@
 //>=======================================================<//
 
     let activeIdx = 0;
-    let activeTab = posts[0].name;
+    let activeTab = '';
 
     const spinner = writable(false);
     const serverData = writable({});
@@ -111,6 +111,12 @@
 
 //>========================================================<//
 
+    function setStorage(v) {
+        try {
+            localStorage.setItem("state", JSON.stringify({ activeIdx, activeTab, class: v }));
+        } catch(e) {}
+    }
+
     /** @param {string|number} tab */
     function swap_tabs(tab)
     {
@@ -124,29 +130,45 @@
             activeTab = posts[tab].name;
         }
 
+        setStorage($activeClass);
+
         document.title = `Ecoin Admin - ${activeTab}`;
         refetch_server('classes-users-teams-prices-activeBids-placedBids-purchases', '/admin', serverData);
     }   
 
     // Control + Arrow key detection
-    onMount(() => document.onkeydown = (ev) => 
-    {
-        if(ev.defaultPrevented || !ev.ctrlKey) return;
-
-        function move(dir)
+    onMount(() => {
+        document.onkeydown = (ev) => 
         {
-            ev.preventDefault();
-            swap_tabs((activeIdx + dir + posts.length) % posts.length);
-        }
+            if(ev.defaultPrevented || !ev.ctrlKey) return;
 
-        if(ev.key === 'ArrowUp') move(-1);
-        if(ev.key === 'ArrowDown') move(1);
+            function move(dir)
+            {
+                ev.preventDefault();
+                swap_tabs((activeIdx + dir + posts.length) % posts.length);
+            }
+
+            if(ev.key === 'ArrowUp') move(-1);
+            if(ev.key === 'ArrowDown') move(1);
+        }
+        
+        const data = JSON.parse(localStorage.getItem('state') ?? '{}');
+
+        activeIdx = data.activeIdx ?? 0;
+        activeTab = data.activeTab ?? posts[0].name;
+
+        if($serverData['classes'].find(v => v.id===data.class)) {
+            activeClass.set(data.class);
+        }
+        
+        activeClass.subscribe(setStorage);
     });
+
 </script>
 
 
 <svelte:head>
-    <title>Ecoin Admin - {posts[0].name}</title>
+    <title>Ecoin Admin - {activeTab}</title>
 </svelte:head>
 
 <div class="fixed top-0 left-0 w-full h-full flex flex-col">
