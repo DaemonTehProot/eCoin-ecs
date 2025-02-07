@@ -75,7 +75,7 @@
         if(!res.ok) return errorPopup.set(`Error: ${(await res.json()).message}`);
         
         priceIdx = bidIdx = -1;
-        refetch_server('user-team-leadWealth-leadEarned-logs', '/user', data);
+        refetch_server('user-teams-leadWealth-leadEarned-logs', '/user', data);
     }
 
 

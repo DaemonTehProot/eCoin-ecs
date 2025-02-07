@@ -165,7 +165,9 @@
                 {#each data as price}
                 {@const { id, cost, desc } = price}
                 
-                    <li class="font-semibold text-center text-md w-full h-fit hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <li class={twMerge(`font-semibold text-center text-md w-full h-fit 
+                        hover:bg-gray-100 dark:hover:bg-gray-700`, id===activePrice?.id && 'bg-gray-100, dark:bg-gray-700')}
+                    >
                         <button class={twMerge(`grid py-1 w-full h-full items-center`, grid_cols)} 
                             on:click={() => !in_state && (activePrice = price)}
                         >
