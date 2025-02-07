@@ -133,7 +133,7 @@ async function user_command_bid({id, cId}, {bId, amount})
     amount = Math.floor(Math.max(amount, 0));
     
     if((b.amount + amount) < 0) error(422, 'Bid not high enough');
-    querys.addPlacedBid.bind(id, cId, bId, amount, now).run();
+    await querys.addPlacedBid.bind(id, cId, bId, amount, now).run();
 
     return Response.json({});
 }
