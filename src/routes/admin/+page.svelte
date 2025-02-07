@@ -20,11 +20,11 @@
 //>====================================================================<//
 
     const posts = [
-        { name: 'Users',    elm: Users,    ico: UserOutline       },
-        { name: 'Teams',    elm: Teams,    ico: UsersGroupOutline },
-        { name: 'Prices',   elm: Prices,   ico: DollarOutline     },
-        { name: 'Bids',     elm: Bids,     ico: CashOutline       },
-        { name: 'Requests', elm: Requests, ico: CartOutline       },
+        { name: 'Users',                    elm: Users,    ico: UserOutline       },
+        { name: 'Teams',                    elm: Teams,    ico: UsersGroupOutline },
+        { name: 'Prices &\nTransaction',    elm: Prices,   ico: DollarOutline     },
+        { name: 'Bids',                     elm: Bids,     ico: CashOutline       },
+        { name: 'Requests',                 elm: Requests, ico: CartOutline       },
     ];
 
     const activeBtnStyle = 'bg-gray-100 dark:bg-gray-700';
