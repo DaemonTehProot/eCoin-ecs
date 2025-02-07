@@ -15,16 +15,16 @@
     import Teams from "$lib/admin/Teams.svelte";
     import Prices from "$lib/admin/Prices.svelte";
     import Biddings from "$lib/admin/Biddings.svelte";
-    import Purchases from "$lib/admin/Purchases.svelte";
+    import Requests from "$lib/admin/Requests.svelte";
 
 //>====================================================================<//
 
     const posts = [
-        { name: 'Users',     elm: Users,     ico: UserOutline       },
-        { name: 'Teams',     elm: Teams,     ico: UsersGroupOutline },
-        { name: 'Prices',    elm: Prices,    ico: DollarOutline     },
-        { name: 'Biddings',  elm: Biddings,  ico: CashOutline       },
-        { name: 'Purchases', elm: Purchases, ico: CartOutline       },
+        { name: 'Users',    elm: Users,    ico: UserOutline       },
+        { name: 'Teams',    elm: Teams,    ico: UsersGroupOutline },
+        { name: 'Prices',   elm: Prices,   ico: DollarOutline     },
+        { name: 'Biddings', elm: Biddings, ico: CashOutline       },
+        { name: 'Requests', elm: Requests, ico: CartOutline       },
     ];
 
     const activeBtnStyle = 'bg-gray-100 dark:bg-gray-700';
