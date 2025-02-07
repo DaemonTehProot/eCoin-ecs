@@ -464,7 +464,9 @@
                 </FloatingLabelInput>
             </div>
             
-            <FloatingLabelInput classInput="font-semibold" id="user_passwd">Password</FloatingLabelInput>
+            <FloatingLabelInput classInput="font-semibold" value="default.pass" id="user_passwd">
+                Password
+            </FloatingLabelInput>
 
             <div class="flex flex-row items-center font-semibold gap-1">
                 Team:
