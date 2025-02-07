@@ -38,7 +38,7 @@
         <div class="mb-3 flex items-center justify-between">
 
             <Heading tag="h3" class="w-fit text-xl sm:text-2xl font-semibold dark:text-white">
-                Purchase List
+                Request List
             </Heading>
 
             <button class={twMerge(`w-fit h-fit p-1 rounded-full outline-3 outline-red-700 dark:outline-red-600
