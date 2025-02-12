@@ -1,6 +1,7 @@
 "use strict";
 
 import { error } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 
 import { querys, save_database } from './database';
 import { randomBytes, scrypt, scryptSync, timingSafeEqual } from 'node:crypto';
@@ -18,13 +19,13 @@ const asyncError = (status, message) => Response.json({ message }, { status });
  * @param {string} pass
  * @param {string|undefined} passNew 
  * @param {string} creds 
- * @param {Map<string, {ctx:unknown, timer:NodeJS.Timeout}>} tokMap 
+ * @param {string} tokTable 
  * @param {string} path
  * @param {unknown} ctx 
  * 
  * @returns {Promise<Response>}
  */
-export function auth_generic_request(pass, passNew, creds, tokMap, path, ctx)
+export function auth_generic_request(pass, passNew, creds, tokTable, path, ctx)
 {
     if(passNew && !passNew.length) error(422, "Malformed value: args.passNew");
 
@@ -39,7 +40,6 @@ export function auth_generic_request(pass, passNew, creds, tokMap, path, ctx)
             if(!timingSafeEqual(keyBuf, userBuf)) return resolve(asyncError(422, 'Invalid Username/Password'));
 
             const sToken = crypto.randomUUID(); // should be safe enough
-            const oToken = { ctx: ctx, timer: setTimeout(() => tokMap.delete(sToken), 4.32e+7) }; // 12hr no exceptions
             
             if(passNew) 
             {
@@ -51,8 +51,10 @@ export function auth_generic_request(pass, passNew, creds, tokMap, path, ctx)
                 ]);
             }
 
-            tokMap.set(sToken, oToken);
-            resolve(new Response(sToken, { headers: { 'Set-Cookie': `sessionId=${sToken};Path=${path};SameSite=Lax;Max-Age=43200` } }));
+            if(tokTable === 'admin') { await querys.addAdminToken.bind(sToken).run(); } 
+            else { await querys.addUserToken.bind(ctx, sToken).run(); }
+
+            resolve(new Response(sToken, { headers: { 'Set-Cookie': `sessionId=${sToken};Path=${path};SameSite=Lax` } }));
         });
     });
 }
@@ -71,14 +73,22 @@ export function create_password(pass)
 /**
  * 
  * @param {import('@sveltejs/kit').Cookies} cookie
- * @param {Map<string, {ctx: unknown, timer: NodeJS.Timeout}>} tokMap 
+ * @param {string} tokTable 
  */
-export function validate_token(cookie, tokMap)
+export async function validate_token(cookie, tokTable)
 {
-    let sToken, oToken;
+    if(tokTable === 'admin') {
+        const stmt = querys.getAdminToken.bind(cookie.get('sessionId'));
+        const _tok = (await stmt.first())?.token;
 
-    if(!(sToken = cookie.get('sessionId'))) error(400, 'Missing Token');
-    if(!(oToken = tokMap.get(sToken))) error(422, 'Invalid Token');
+        if(_tok) { return _tok; }
+    } 
+    else {
+        const stmt = querys.getUserToken.bind(cookie.get('sessionId'));
+        const user = (await stmt.first())?.uId;
+        
+        if(user) { return user; } 
+    }
 
-    return oToken.ctx;
+    error(422, "Session not started");
 }

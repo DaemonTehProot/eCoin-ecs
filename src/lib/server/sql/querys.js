@@ -2,6 +2,9 @@ export default
 `getAdminCreds: SELECT passwd FROM admin;;
 getUserCredsByName: SELECT id, passwd FROM users WHERE name=?;;
 
+getUserToken: SELECT uId FROM activeUsers WHERE token=?;;
+getAdminToken: SELECT token FROM activeAdmins WHERE token=?;;
+
 getLogById: SELECT id, uId, desc, type, total, updated FROM logs WHERE id=?;;
 getUserById: SELECT id, cId, tId, name, balance, earnings, updated FROM users WHERE id=?;;
 
@@ -49,6 +52,8 @@ addPurchase: INSERT INTO purchases(uId, cId, desc, notes, quant, updated) VALUES
 addPlacedBid: INSERT INTO placedBids(uId, cId, bId, amount, updated) VALUES(?,?,?,?,?);;
 addActiveBid: INSERT INTO activeBids(cId, amount, desc, notes, updated) VALUES(?,?,?,?,?);;
 
+addAdminToken: INSERT INTO activeAdmins(token) VALUES(?);;
+addUserToken: INSERT INTO activeUsers(uId, token) VALUES(?,?);;
 
 userTransact: UPDATE users SET balance=balance+?, updated=? WHERE id=?;;
 adminTransact: UPDATE users SET balance=balance+?, earnings=earnings+?, updated=? WHERE id=?;;
