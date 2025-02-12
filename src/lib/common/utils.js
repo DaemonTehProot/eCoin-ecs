@@ -19,12 +19,14 @@ export function date_desc_from_hour()
 }
 
 /** @param {string} path */
-export function session_logout(path)
+export async function session_logout(path)
 {
    // if(getContext('status') !== 'Loading')
     {
         document.cookie = `sessionId=;Max-Age=0;Path=${path};domain=${location.hostname}`;
-        location.href = `${path}/login`
+        await fetch(`${path}/api/logout`, { body: "{}", method: 'POST' });
+
+        location.href = `${path}/login`;
     }
 }
 

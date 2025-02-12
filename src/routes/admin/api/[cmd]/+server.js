@@ -6,20 +6,22 @@ import { error } from '@sveltejs/kit';
 import { querys, save_database } from '$lib/server/database';
 
 import { verify_array_type, verify_object_types, rightFit, async_filter } from '$lib/server/utils';
-import { validate_token, auth_generic_request, activeAdmins, create_password } from '$lib/server/auth';
+import { validate_token, auth_generic_request, session_logout, create_password } from '$lib/server/auth';
 
 
 /**
  * @param {{pass: string, passNew?: string}} args
+ * @param {import('@sveltejs/kit').Cookies} cookies
 */
-async function auth_admin_request({pass, passNew})
+async function auth_admin_request({pass, passNew}, cookies)
 {
     if(!pass || !pass.length) error(422, 'Missing/Malformed value: args.pass');
 
     const creds = await querys.getAdminCreds.first();    
     if(!creds) error(500, "No admin list found");
 
-    return auth_generic_request(pass, passNew, creds.passwd, 'admin', '/admin', null);
+    const sessionId = cookies.get('sessionId');
+    return auth_generic_request(pass, passNew, creds.passwd, 'activeAdmins', '/admin', null, sessionId);
 }
 
 
@@ -310,9 +312,9 @@ async function admin_command_undo({id})
 export async function POST({cookies, request, params})
 {
     const args = await request.json();
-    if(params.cmd === 'auth') return auth_admin_request(args);
+    if(params.cmd === 'auth') return auth_admin_request(args, cookies);
 
-    await validate_token(cookies, 'admin');
+    await validate_token(cookies, 'activeAdmins');
 
     switch(params.cmd)
     {
@@ -327,6 +329,8 @@ export async function POST({cookies, request, params})
     case 'undo': return admin_command_undo(args);
     case 'trans': return admin_command_trans(args);
     case 'passwd': return admin_command_passwd(args);
+    
+    case 'logout': return session_logout(cookies, 'activeAdmins');
     }
 
     error(422, `Invalid command: ${params.cmd}`);
