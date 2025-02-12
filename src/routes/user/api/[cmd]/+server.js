@@ -6,13 +6,14 @@ import { error } from '@sveltejs/kit';
 import { querys, save_database } from '$lib/server/database';
 
 import { verify_array_type, validate_price } from '$lib/server/utils';
-import { validate_token, auth_generic_request } from '$lib/server/auth';
+import { validate_token, auth_generic_request, session_logout } from '$lib/server/auth';
 
 
 /**
  * @param {{name: string, pass: string, passNew?: string}} args 
+ * @param {import('@sveltejs/kit').Cookies} cookies
  */
-async function auth_user_request({name, pass, passNew})
+async function auth_user_request({name, pass, passNew}, cookies)
 {
     if(!name || !name.length) error(422, "Missing/Malformed value: args.name");
     if(!pass || !pass.length) error(422, "Missing/Malformed value: args.pass");
@@ -20,7 +21,8 @@ async function auth_user_request({name, pass, passNew})
     const creds = await querys.getUserCredsByName.bind(name).first();
     if(!creds) error(422, "Invalid Username/Password");
 
-    return auth_generic_request(pass, passNew, creds.passwd, 'users', '/user', creds.id);
+    const sessionId = cookies.get('sessionId');
+    return auth_generic_request(pass, passNew, creds.passwd, 'activeUsers', '/user', creds.id, sessionId);
 }
 
 
@@ -143,9 +145,9 @@ async function user_command_bid({id, cId}, {bId, amount})
 export async function POST({cookies, request, params})
 {
     const args = await request.json(); 
-    if(params.cmd === 'auth') return auth_user_request(args);
+    if(params.cmd === 'auth') return auth_user_request(args, cookies);
     
-    const userId = await validate_token(cookies, 'users');
+    const userId = await validate_token(cookies, 'activeUsers');
 
     const user = await querys.getUserById.bind(userId).first();
     if(!user) error(500, "User cannot be found");
@@ -158,6 +160,8 @@ export async function POST({cookies, request, params})
 
     case 'bid': return user_command_bid(user, args);
     case 'trans': return user_command_trans(user, args);
+
+    case 'logout': return session_logout(cookies, 'activeUsers');
     }
 
     error(422, `Invalid command: ${params.cmd}`);
