@@ -15,6 +15,6 @@ const getInitString =
 /** @type {import("./$types").PageServerLoad} */
 export async function load({cookies, fetch})
 {
-    try { validate_token(cookies, 'activeAdmins'); } catch { redirect(302, "/admin/login"); }
+    try { await validate_token(cookies, 'activeAdmins'); } catch { redirect(302, "/admin/login"); }
     return { initData: await fetch('/admin/api/get', { body: getInitString, method: 'POST' }).then(v => v.json()) };
 }

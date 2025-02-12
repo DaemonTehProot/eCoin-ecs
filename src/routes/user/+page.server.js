@@ -17,6 +17,6 @@ const getInitString =
 
 export async function load({cookies, fetch})
 {
-    try { validate_token(cookies, 'activeUsers'); } catch { redirect(302, '/user/login'); }
+    try { await validate_token(cookies, 'activeUsers'); } catch(e) { redirect(302, '/user/login'); }
     return { initData: await fetch('/user/api/get', { body: getInitString, method: 'POST' }).then(v => v.json()) };
 }
