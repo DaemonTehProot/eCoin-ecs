@@ -77,17 +77,21 @@ export function create_password(pass)
  */
 export async function validate_token(cookie, tokTable)
 {
-    if(tokTable === 'activeAdmins') {
-        const stmt = querys.getAdminToken.bind(cookie.get('sessionId'));
-        const _tok = (await stmt.first())?.token;
+    const sessionId = cookie.get('sessionId');
 
-        if(_tok) { return _tok; }
-    } 
-    else if(tokTable === 'activeUsers') {
-        const stmt = querys.getUserToken.bind(cookie.get('sessionId'));
-        const user = (await stmt.first())?.uId;
-        
-        if(user) { return user; } 
+    if(sessionId) {
+        if(tokTable === 'activeAdmins') {
+            const stmt = querys.getAdminToken.bind(sessionId);
+            const _tok = (await stmt.first())?.token;
+    
+            if(_tok) { return _tok; }
+        } 
+        else if(tokTable === 'activeUsers') {
+            const stmt = querys.getUserToken.bind(sessionId);
+            const user = (await stmt.first())?.uId;
+            
+            if(user) { return user; } 
+        }
     }
 
     error(422, "Session not started");
