@@ -1,7 +1,7 @@
 "use strict";
 
 import { redirect } from "@sveltejs/kit";
-import { validate_token, activeUsers } from '$lib/server/auth';
+import { validate_token } from '$lib/server/auth';
 
 
 const getInitString =
@@ -17,6 +17,6 @@ const getInitString =
 
 export async function load({cookies, fetch})
 {
-    try { validate_token(cookies, activeUsers); } catch { redirect(302, '/user/login'); }
+    try { validate_token(cookies, 'activeUsers'); } catch { redirect(302, '/user/login'); }
     return { initData: await fetch('/user/api/get', { body: getInitString, method: 'POST' }).then(v => v.json()) };
 }
