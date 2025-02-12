@@ -100,3 +100,11 @@ CREATE TABLE placedBids(
     amount number NOT null,
     updated integer NOT null
 );
+
+
+CREATE TABLE activeAdmins(token text NOT null);
+
+CREATE TABLE activeUsers(
+    uId integer NOT null REFERENCES users(id) ON DELETE CASCADE,
+    token text NOT null
+)

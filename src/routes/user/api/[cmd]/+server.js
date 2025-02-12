@@ -6,7 +6,7 @@ import { error } from '@sveltejs/kit';
 import { querys, save_database } from '$lib/server/database';
 
 import { verify_array_type, validate_price } from '$lib/server/utils';
-import { validate_token, auth_generic_request, activeUsers } from '$lib/server/auth';
+import { validate_token, auth_generic_request } from '$lib/server/auth';
 
 
 /**
@@ -20,7 +20,7 @@ async function auth_user_request({name, pass, passNew})
     const creds = await querys.getUserCredsByName.bind(name).first();
     if(!creds) error(422, "Invalid Username/Password");
 
-    return auth_generic_request(pass, passNew, creds.passwd, activeUsers, '/user', creds.id);
+    return auth_generic_request(pass, passNew, creds.passwd, 'users', '/user', creds.id);
 }
 
 
@@ -145,7 +145,7 @@ export async function POST({cookies, request, params})
     const args = await request.json(); 
     if(params.cmd === 'auth') return auth_user_request(args);
     
-    const userId = validate_token(cookies, activeUsers);
+    const userId = await validate_token(cookies, 'users');
 
     const user = await querys.getUserById.bind(userId).first();
     if(!user) error(500, "User cannot be found");

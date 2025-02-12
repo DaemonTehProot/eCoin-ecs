@@ -19,7 +19,7 @@ async function auth_admin_request({pass, passNew})
     const creds = await querys.getAdminCreds.first();    
     if(!creds) error(500, "No admin list found");
 
-    return auth_generic_request(pass, passNew, creds.passwd, activeAdmins, '/admin', null);
+    return auth_generic_request(pass, passNew, creds.passwd, 'admin', '/admin', null);
 }
 
 
@@ -312,7 +312,7 @@ export async function POST({cookies, request, params})
     const args = await request.json();
     if(params.cmd === 'auth') return auth_admin_request(args);
 
-    validate_token(cookies, activeAdmins);
+    await validate_token(cookies, 'admin');
 
     switch(params.cmd)
     {
