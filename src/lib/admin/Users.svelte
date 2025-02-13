@@ -7,7 +7,7 @@
     import { int2cash, int2color, add_suffix, object_map, errorPopup } from "$lib/common/utils";
     import { initString, refetch_server, send_add_generic, send_del_generic, send_set_generic, gen_get_args } from "$lib/common/cmd";
 
-    import { Button, Card, Dropdown, DropdownItem, Input, FloatingLabelInput, Heading, Modal, Spinner, ButtonGroup, InputAddon } from "flowbite-svelte";
+    import { Button, Card, Dropdown, DropdownItem, Input, FloatingLabelInput, Heading, Modal, Spinner, ButtonGroup, InputAddon, DropdownDivider } from "flowbite-svelte";
     import { AngleLeftOutline, AngleRightOutline, TrashBinOutline, PlusOutline, EditOutline, SearchOutline, UndoOutline, LockOutline, FileExportOutline } from "flowbite-svelte-icons";
 
     /** @type {(s:string) => Promise<boolean>}           */ const confirmMsg  = getContext("confirmMsg");
@@ -31,6 +31,8 @@
     
     let value = "";
     let inputActive = false;
+
+    let activeTid = null;
     
     // Intentional reference to users and activeUser
     
@@ -69,16 +71,18 @@
         const name = `${fname} ${lname}`.trimStart();
         const pass = document.querySelector('input#user_passwd')?.value;
 
-        if(!name.length) { errorPopup.set("Please set a first or last name"); }
-        if(!pass.length) { errorPopup.set("Please set something for password"); }
+        if(!name.length) { errorPopup.set("Please set a first or last name"); return; }
+        if(!pass.length) { errorPopup.set("Please set something for password"); return; }
 
         send_add_generic('users', [{name, pass, tId: selectedTeam?.id ?? null, cId: $activeClass}], spinner, data);
     }
     
-    async function rename_user()
+    async function edit_user()
     {
         const name = document.querySelector('#user_name')?.value;
-        send_set_generic('users', [activeUser.id], {name}, spinner, data);
+        if(!name.length) { errorPopup.set("Name of the user cannot be blank"); }
+
+        send_set_generic('users', [activeUser.id], { name, tId: activeTid }, spinner, data);
     }
 
     async function change_passwd()
@@ -136,6 +140,9 @@
             server_log_action(document.body, undefined);
         }
     }
+
+    /** @type {import('svelte/action').Action} */
+    function reset_tId_action() { activeTid = activeUser.tId; }
 
 //>---------------------------------------------------<//
 
@@ -263,8 +270,7 @@
     
                 <Heading tag="h3" class="w-fit text-xl sm:text-2xl font-semibold dark:text-white">
                 {#if in_state==="modify"}
-                    <FloatingLabelInput id="user_name" value={name}
-                        autofocus class="font-2xl" on:change={() => rename_user()} />
+                    <FloatingLabelInput id="user_name" value={name} class="font-2xl" />
                 {:else}
                     {name}
                 {/if}
@@ -290,7 +296,7 @@
 
                 <button class={twMerge(`w-fit h-fit p-1 outline-3 rounded-full outline-green-600 dark:outline-green-500 
                     hover:text-green-600 dark:hover:text-green-500`, (in_state==="modify") && 'outline text-green-600 dark:text-green-500')}
-                    on:click={async () => {(in_state==="modify") && await rename_user(); in_state = (in_state==="modify") ? null : "modify"}}
+                    on:click={async () => {(in_state==="modify") && await edit_user(); in_state = (in_state==="modify") ? null : "modify"}}
                 >
                     <EditOutline size="lg" />
                 </button>
@@ -334,7 +340,34 @@
 
                 <div class="flex flex-row gap-x-3">
                     <p class="text-primary-600 dark:text-primary-500">Team:</p> 
+                    
+                {#if in_state==='modify'}
+                    <button class="w-fit h-fit p-1 -mt-1 -ml-1 gap-1 flex flex-row items-center 
+                        underline-offset-[6px] hover:text-primary-600 dark:hover:text-primary-500 hover:underline"
+                        use:reset_tId_action
+                    >
+                        {teams.find(v => v.id===activeTid)?.name ?? '(none)'}
+                        <AngleRightOutline size="md" />
+                    </button>
+                    
+                    <Dropdown class="py-0 text-center" placement="right-start">
+                    {#each teams as {id, name}}
+                        <DropdownItem class={twMerge("text-center hover:text-primary-600 dark:hover:text-primary-500", 
+                            activeTid===id && 'text-primary-600 dark:text-primary-500')} on:click={() => activeTid=id}
+                        >
+                            {name}
+                        </DropdownItem>
+                    {/each}
+                    {#if teams.length}
+                        <DropdownDivider />
+                    {/if}
+                        <DropdownItem class="text-center" on:click={() => activeTid=null}>
+                            (none)
+                        </DropdownItem>
+                    </Dropdown>     
+                {:else}
                     <p>{tName}</p>
+                {/if}
                 </div> <br/>
 
                 <div class="flex flex-row gap-x-3">

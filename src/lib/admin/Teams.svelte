@@ -9,7 +9,7 @@
     import { send_add_generic, send_del_generic, send_set_generic } from "$lib/common/cmd";
 
     import { AngleRightOutline, TrashBinOutline, PlusOutline, EditOutline } from "flowbite-svelte-icons";
-    import { Card, Heading, Tabs, TabItem, Modal, FloatingLabelInput, Dropdown, DropdownItem, Button, Radio } from "flowbite-svelte";
+    import { Card, Heading, Tabs, TabItem, Modal, FloatingLabelInput, Dropdown, DropdownItem, Button, Radio, DropdownDivider } from "flowbite-svelte";
 
     /** @type {(s:string) => Promise<boolean>}           */ const confirmMsg  = getContext("confirmMsg");
     /** @type {import("svelte/store").Writable<any>}     */ const data        = getContext("serverData");
@@ -59,9 +59,9 @@
         selectedUsers.length = 0;
     }
 
-    async function add_user(id)
+    async function add_users(ids)
     {
-        send_set_generic('users', [id], { tId: activeTeamId }, spinner, data);
+        send_set_generic('users', ids, { tId: activeTeamId }, spinner, data);
     }
 
 
@@ -98,6 +98,9 @@
         selectedUsers = [...Array(rest.length)].map((a,i) => a=i)
                         .sort(() => Math.random()-.5).slice(0, total).map(v => rest[v].id);
     }
+
+    /** @type {import('svelte/action').Action} */
+    function reset_selected_action() { selectedUsers.length = 0; }
 </script>
 
 <div id="tab-Teams" class="flex flex-row gap-4 items-start">
@@ -151,19 +154,31 @@
                 </Dropdown>
             </Heading>
 
-            <div class="flex flex-row items-center gap-2">
+            <div class="flex flex-row items-center gap-2" use:reset_selected_action>
                 <button class="w-fit h-fit p-1 hover:text-green-600 dark:hover:text-green-500">
                     <PlusOutline size="lg" />
                 </button>
 
                 <Dropdown placement="bottom-start" class="py-0 overflow-hidden w-fit">
-                {#each curUsers.filter(v => v.tId===null) as {name, id}}
-                    <DropdownItem on:click={() => add_user(id)}>
-                        {name}
+                {@const valid = curUsers.filter(v => v.tId===null)}
+
+                {#each valid as {name, id}}
+                    <li class="flex flex-row justify-between items-center text-left font-medium py-2 px-4 text-sm gap-x-3">
+                        <p>{name}</p>
+
+                        <input type="checkbox" value={id} bind:group={selectedUsers}
+                            class={inputClass(false, 'primary', true, true, 'me-2', '')}/>
+                    </li>
+                {/each}
+                {#if valid.length}
+                    <DropdownDivider class="mb-0" />
+                    <DropdownItem class="text-center hover:text-primary-600 dark:hover:text-primary-500 hover:underline"
+                        on:click={() => add_users(selectedUsers)}>
+                        Add
                     </DropdownItem>
                 {:else}
                     <DropdownItem class="text-center">(none)</DropdownItem>
-                {/each}
+                {/if}
                 </Dropdown>
     
                 <button class={twMerge(`w-fit h-fit p-1 rounded-full outline-3 outline-red-700 dark:outline-red-600
@@ -196,6 +211,7 @@
                     {#if in_state==="delete"}
                         <input type="checkbox" value={id} bind:group={selectedUsers} 
                             class={inputClass(false, 'red', true, true, 'me-2', '')}
+                            use:reset_selected_action
                         />
                     {/if}
                 </button>
@@ -278,7 +294,7 @@
 
             <FloatingLabelInput classInput="font-semibold" id="team_name">Team name</FloatingLabelInput>
 
-            <div class="flex flex-row items-center font-semibold gap-1">
+            <div class="flex flex-row items-center font-semibold gap-1" use:reset_selected_action>
                 Members:
                 
                 <button class="w-fit h-fit p-1 flex flex-row underline-offset-[6px]
@@ -300,8 +316,8 @@
 
                     <Dropdown placement="right-start" class="py-0 overflow-hidden w-fit">
                     {#each curUsers.filter(v => v.tId===null) as {name, id}}
-                        <li class="flex flex-row justify-between items-center text-left font-medium py-2 px-4 text-sm gap-x-4">
-                            <p>{name}</p>
+                        <li class="flex flex-row justify-between items-center text-left font-medium py-2 px-4 text-sm gap-x-3 w-fit">
+                            <span>{name}</span>
 
                             <input type="checkbox" value={id} bind:group={selectedUsers}
                                 class={inputClass(false, 'primary', true, true, 'me-2', '')}
