@@ -163,11 +163,11 @@
                 {@const valid = curUsers.filter(v => v.tId===null)}
 
                 {#each valid as {name, id}}
-                    <li class="flex flex-row justify-between items-center text-left font-medium py-2 px-4 text-sm gap-x-3">
-                        <p>{name}</p>
-
+                    <li class="flex flex-row justify-left items-center text-left font-medium py-2 px-4 text-sm">
                         <input type="checkbox" value={id} bind:group={selectedUsers}
                             class={inputClass(false, 'primary', true, true, 'me-2', '')}/>
+                        
+                        <span class="text-nowrap">{name}</span>
                     </li>
                 {/each}
                 {#if valid.length}
@@ -316,12 +316,12 @@
 
                     <Dropdown placement="right-start" class="py-0 overflow-hidden w-fit">
                     {#each curUsers.filter(v => v.tId===null) as {name, id}}
-                        <li class="flex flex-row justify-between items-center text-left font-medium py-2 px-4 text-sm gap-x-3 w-fit">
-                            <span>{name}</span>
-
+                        <li class="flex flex-row justify-left items-center text-left font-medium py-2 px-4 text-sm w-full">
                             <input type="checkbox" value={id} bind:group={selectedUsers}
                                 class={inputClass(false, 'primary', true, true, 'me-2', '')}
                             />
+                            
+                            <span class="text-nowrap">{name}</span>
                         </li>
                     {:else}
                         <DropdownItem class="text-center">(none)</DropdownItem>

@@ -1,4 +1,5 @@
 <script>
+    import { writable } from "svelte/store";
     import { twMerge } from "tailwind-merge";
     
     import { getContext } from "svelte";
@@ -30,10 +31,36 @@
     let activeType = '';
     let activePrice = null;
 
-
     let target = null;
     let quantity = 1;
 
+    
+    let __selectedUsers=[]; let selectedUsers=writable(); selectedUsers.set([]);
+    let __selectedTeams=[]; let selectedTeams=writable(); selectedTeams.set([]);
+
+    $: {
+        __selectedTeams;
+        selectedTeams.update(old => 
+        {
+            if(__selectedTeams.length > old.length) 
+            {
+                const next = __selectedTeams.filter(v => !old.includes(v))[0];
+                const uIds = users.filter(v => v.tId === next).map(v => v.id);
+
+                __selectedUsers = [...new Set(__selectedUsers.concat(uIds))];
+            }
+            else if(__selectedTeams.length < old.length) 
+            {
+                const prev = old.filter(v => !__selectedTeams.includes(v))[0];
+                __selectedUsers = __selectedUsers.filter(v => users.find(v2 => v2.id===v)?.tId !== prev);
+            }
+
+            return __selectedTeams;
+        });
+    }
+    $: { selectedUsers.set(__selectedUsers); }
+
+    
     $: grid_cols = (in_state==='delete') ? 'grid-cols-[2fr_2fr_1fr]' 
                                             : 'grid-cols-[1fr_1fr]';
 
@@ -102,12 +129,10 @@
     {
         const notes = document.querySelector('input#trans_notes')?.value;
 
-        if(target === null) { errorPopup.set(`Please set a target`); return; }
+        if(!$selectedUsers.length) { errorPopup.set(`Please set a target`); return; }
         if(!is_posInt(+quantity)) { errorPopup.set('Please set quanity to a positive integer'); return; }
 
-        
-        const ids = target.uId ? [target.uId] : users.filter(v => v.tId===target.tId).map(v => v.id);
-        const body = { pId: activePrice.id, quant: +quantity, tax: 0.2, notes, ids };
+        const body = { pId: activePrice.id, quant: +quantity, tax: 0.2, notes, ids: $selectedUsers };
 
         spinner.set(true);
         const res = await fetch('/admin/api/trans', { body: JSON.stringify(body), method: 'POST' });
@@ -116,6 +141,12 @@
         if(!res.ok) return errorPopup.set(`Error: ${(await res.json()).message}`);
 
         await refetch_server('users-teams', '/admin', data);
+    }
+
+    /** @type {import('svelte/action').Action} */
+    function reset_selected_action() { 
+        __selectedUsers.length = 0;
+        __selectedTeams.length = 0;
     }
 </script>
 
@@ -368,13 +399,13 @@
             <FloatingLabelInput classInput="font-semibold" id="trans_quant" type="number" bind:value={quantity}>Quantity</FloatingLabelInput>
 
             <div class="gap-y-3">
-                <div class="flex flex-row items-center font-semibold gap-1">
-                    Target:
+                <div class="flex flex-row items-center font-semibold gap-1" use:reset_selected_action>
+                    Targets:
     
                     <button class="w-fit h-fit p-1 flex flex-row underline-offset-[6px]
                         hover:text-primary-600 dark:hover:text-primary-500 hover:underline"
                     >
-                        {target?.name ?? '(none)'}
+                        {`${__selectedUsers.length} Users`}
                         <AngleRightOutline size="lg" />
                     </button>
     
@@ -383,10 +414,14 @@
                             Users <AngleRightOutline size="md" />
                         </DropdownItem>
     
-                        <Dropdown placement="right-start" class="py-0 w-24">
+                        <Dropdown placement="right-start" class="py-0 w-fit">
                         {#each users as {name, id}}
-                            <DropdownItem class="flex flex-row justify-center"
-                                on:click={() => target={name, uId:id}}>{name}</DropdownItem>
+                            <li class="flex flex-row justify-left items-center text-left font-medium py-2 px-4 text-sm w-full">
+                                <input type="checkbox" value={id} bind:group={__selectedUsers}
+                                    class={inputClass(false, 'primary', true, true, 'me-2', '')} />
+                                
+                                <span class="text-nowrap">{name}</span>
+                            </li>
                         {/each}
                         </Dropdown>
                         
@@ -395,10 +430,14 @@
                             Teams <AngleRightOutline size="md" />
                         </DropdownItem>
     
-                        <Dropdown placement="right-start" class="py-0 w-32">
+                        <Dropdown placement="right-start" class="py-0 w-fit">
                         {#each teams as {name, id}}
-                            <DropdownItem class="flex flex-row justify-center"
-                                on:click={() => target={name, tId:id}}>{name}</DropdownItem>
+                            <li class="flex flex-row justify-left items-center text-left font-medium py-2 px-4 text-sm w-full">
+                                <input type="checkbox" value={id} bind:group={__selectedTeams}
+                                    class={inputClass(false, 'primary', true, true, 'me-2', '')} />
+
+                                <span class="text-nowrap">{name}</span>
+                            </li>
                         {/each}
                         </Dropdown>
                     {/if}
