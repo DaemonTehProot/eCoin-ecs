@@ -9,7 +9,7 @@
     import { refetch_server, send_add_generic, send_del_generic, send_set_generic } from "$lib/common/cmd";
 
     import { AngleRightOutline, TrashBinOutline, PlusOutline, EditOutline } from "flowbite-svelte-icons";
-    import { Card, Heading, Tabs, TabItem, Modal, FloatingLabelInput, Dropdown, DropdownItem, Button, Checkbox, CheckboxButton } from "flowbite-svelte";
+    import { Card, Heading, Tabs, TabItem, Modal, FloatingLabelInput, Dropdown, DropdownItem, Button, Checkbox } from "flowbite-svelte";
 
 
     /** @type {(s:string) => Promise<boolean>}           */ const confirmMsg  = getContext("confirmMsg");
@@ -33,7 +33,7 @@
 
     let target = null;
     let quantity = 1;
-    let enableTax = 1;
+    let enableTax = true;
 
     
     let __selectedUsers=[]; let selectedUsers=writable(); selectedUsers.set([]);
@@ -136,7 +136,7 @@
         const tax = enableTax ? 0.2 : 0.0;
         const body = { pId: activePrice.id, quant: +quantity, tax, notes, ids: $selectedUsers };
 
-        enableTax = 1;
+        enableTax = false;
 
         spinner.set(true);
         const res = await fetch('/admin/api/trans', { body: JSON.stringify(body), method: 'POST' });
@@ -402,7 +402,7 @@
             <FloatingLabelInput classInput="font-semibold" id="trans_notes">Notes</FloatingLabelInput>
             <FloatingLabelInput classInput="font-semibold" id="trans_quant" type="number" bind:value={quantity}>Quantity</FloatingLabelInput>
 
-            <CheckboxButton class="font-semibold" id="trans_tax" bind:value={enableTax}>Enable Tax</CheckboxButton>
+            <Checkbox class="font-semibold" id="trans_tax" bind:value={enableTax}>Enable Tax</Checkbox>
 
             <div class="gap-y-3">
                 <div class="flex flex-row items-center font-semibold gap-1" use:reset_selected_action>
