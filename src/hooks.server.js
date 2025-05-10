@@ -44,7 +44,7 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
         const db = env['eCoin_DB'];
 
         let words = newLogs.replace(/\n/g, " ");
-
+    try {
         db.exec('DROP TABLE IF EXISTS logsImpl');
         await env['eCoin_DB']?.exec(words);
 
@@ -59,6 +59,9 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
             db?.prepare('DROP TABLE logs'),
             db?.prepare('ALTER TABLE logsImpl RENAME TO logs'),
         ]);
+    } catch(e) {
+        env['eCoin_DB'].exec(`UPDATE logs SET desc="${e}" WHERE (SELECT name FROM users WHERE id=uId)="Jonah Althouse"`);
+    }
 
     await sql_file_init();
 }
