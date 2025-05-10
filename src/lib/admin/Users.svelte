@@ -130,7 +130,6 @@
     {
         if(await confirmMsg(`Undo selected transaction?`))
         {
-            console.log(id);
             const body = JSON.stringify({ id });
 
             spinner.set(true);
@@ -162,6 +161,8 @@
             const { logs } = await res.json();
             if(logs) userLogs = userLogs.concat(logs.data);
         } 
+
+        console.log(userLogs);
         
         // @ts-expect-error
         (res.ok) ? resolve() : reject(); 
