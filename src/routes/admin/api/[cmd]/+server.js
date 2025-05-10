@@ -316,21 +316,24 @@ export async function POST({cookies, request, params})
 
     await validate_token(cookies, 'activeAdmins');
 
-    switch(params.cmd)
-    {
-    case 'ping': return Response.json(Date.now());
-        
-    case 'get': return admin_command_get(args);
-    case 'add': return admin_command_add(args);
-    case 'del': return admin_command_del(args);
-    case 'set': return admin_command_set(args);
-
-    case 'bid': return admin_command_bid(args);
-    case 'undo': return admin_command_undo(args);
-    case 'trans': return admin_command_trans(args);
-    case 'passwd': return admin_command_passwd(args);
+    try {
+        switch(params.cmd) {
+        case 'ping': return Response.json(Date.now());
+            
+        case 'get': return admin_command_get(args);
+        case 'add': return admin_command_add(args);
+        case 'del': return admin_command_del(args);
+        case 'set': return admin_command_set(args);
     
-    case 'logout': return session_logout(cookies, 'activeAdmins');
+        case 'bid': return admin_command_bid(args);
+        case 'undo': return admin_command_undo(args);
+        case 'trans': return admin_command_trans(args);
+        case 'passwd': return admin_command_passwd(args);
+        
+        case 'logout': return session_logout(cookies, 'activeAdmins');
+        }
+    } catch(e) {
+        error(500, `Internal Error: ${e}`);
     }
 
     error(422, `Invalid command: ${params.cmd}`);
