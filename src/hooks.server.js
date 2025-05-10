@@ -58,7 +58,7 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
     
         await db.batch([
             db?.prepare('DELETE TABLE logs'),
-            db?.prepare('ALTER TABLE logs_Impl RENAME TO logs'),
+            db?.prepare('ALTER TABLE logsImpl RENAME TO logs'),
         ]);
     }
     catch(e) {
