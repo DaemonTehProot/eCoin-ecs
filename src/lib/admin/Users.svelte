@@ -161,8 +161,6 @@
             const { logs } = await res.json();
             if(logs) userLogs = userLogs.concat(logs.data);
         } 
-
-        console.log(userLogs);
         
         // @ts-expect-error
         (res.ok) ? resolve() : reject(); 
