@@ -42,6 +42,8 @@ const getter = 'SELECT uId, desc, type, notes, old, total, updated, date FROM lo
 const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, updated, date) VALUES(?,?,?,?,?,?,?,?)';
 
     const db = env['eCoin_DB'];
+
+    /*await db?.exec('DELETE TABLE logs_Impl');
     await db?.exec(newLogs);
 
     const set = db?.prepare(setter);
@@ -51,8 +53,10 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
         await set.bind(e.uId, e.desc, e.type, e.notes, e.old, e.total, e.updated, e.date).run();
     }
 
-    await db?.exec('DELETE TABLE logs')
-    await db?.exec('ALTER TABLE logs_Impl RENAME TO logs');
+    await db.batch([
+        db?.prepare('DELETE TABLE logs'),
+        db?.prepare('ALTER TABLE logs_Impl RENAME TO logs'),
+    ]);*/
 
     await sql_file_init();
 }
