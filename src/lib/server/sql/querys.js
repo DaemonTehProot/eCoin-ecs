@@ -28,8 +28,8 @@ getPlacedBidsSingle: SELECT id, cId, uId, bId, amount, updated FROM placedBids W
 
 getPurchasesMulti: SELECT id, cId, uId, desc, notes, quant, updated FROM purchases WHERE updated>?;;
 
-getLogsMulti: SELECT uId, desc, type, notes, old, total, updated, date FROM logs WHERE updated>?;;
-getLogsSingle: SELECT uId, desc, type, notes, old, total, updated, date FROM logs WHERE updated>? AND uId=?;;
+getLogsMulti: SELECT id, uId, desc, type, notes, old, total, updated, date FROM logs WHERE updated>?;;
+getLogsSingle: SELECT id, uId, desc, type, notes, old, total, updated, date FROM logs WHERE updated>? AND uId=?;;
 
 getLeadWealthSingle: SELECT name, balance AS value FROM users WHERE cId=? ORDER BY balance DESC LIMIT 3;;
 getLeadEarnedSingle: SELECT name, earnings AS value FROM users WHERE cId=? ORDER BY earnings DESC LIMIT 3;;
