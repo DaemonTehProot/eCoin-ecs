@@ -128,9 +128,9 @@
 
     async function undo_log(id) 
     {
-        console.log("Test Message");
         if(await confirmMsg(`Undo selected transaction?`))
         {
+            console.log(id);
             const body = JSON.stringify({ id });
 
             spinner.set(true);
@@ -179,8 +179,8 @@
         const filted = map_logs(logs).filter(v1 => lTypes.some(v2 => v1[v2].match(regex)));
 
         let _tmp = filted.map(v => object_map(v, (k,v) => lTypes.includes(k) ? v.replace(regex, rStr) : v));
-
         console.log(_tmp);
+
         return _tmp;
     }
 
