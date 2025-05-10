@@ -43,13 +43,13 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
 
     const db = env['eCoin_DB'];
 
-    /*await db?.exec('DELETE TABLE logs_Impl');
+    // await db?.exec('DELETE TABLE logs_Impl');
     await db?.exec(newLogs);
 
     const set = db?.prepare(setter);
     const get = (await db?.prepare(getter).run()).results;
    
-    for(const e of get) {
+    /*for(const e of get) {
         await set.bind(e.uId, e.desc, e.type, e.notes, e.old, e.total, e.updated, e.date).run();
     }
 
