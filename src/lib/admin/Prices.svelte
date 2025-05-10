@@ -402,7 +402,7 @@
             <FloatingLabelInput classInput="font-semibold" id="trans_notes">Notes</FloatingLabelInput>
             <FloatingLabelInput classInput="font-semibold" id="trans_quant" type="number" bind:value={quantity}>Quantity</FloatingLabelInput>
 
-            <Checkbox class="font-semibold" id="trans_tax" bind:value={enableTax}>Enable Tax</Checkbox>
+            <Checkbox bind:checked={enableTax} class="font-semibold" id="trans_tax">Enable Tax</Checkbox>
 
             <div class="gap-y-3">
                 <div class="flex flex-row items-center font-semibold gap-1" use:reset_selected_action>
