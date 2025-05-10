@@ -227,7 +227,7 @@ async function admin_command_trans({pId, quant, tax, notes, ids})
         const u = await querys.getUserById.bind(uId).first();
         if(!u) continue;
 
-        let total = quant*p.cost;
+        let total = Math.trunc(quant * p.cost);
     
         if(p.type === 'Purchase') {
             if((total+u.balance) < 0) error(422, `Not enough eCoins on user ${u.name}`);
