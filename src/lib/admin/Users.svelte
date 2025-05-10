@@ -129,6 +129,7 @@
         if(await confirmMsg(`Undo selected transaction?`))
         {
             const body = JSON.stringify({ id });
+            console.log(body);
 
             spinner.set(true);
             const res = await fetch('/admin/api/undo', { body, method: 'POST' });
