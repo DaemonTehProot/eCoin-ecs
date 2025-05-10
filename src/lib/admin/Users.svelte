@@ -128,6 +128,8 @@
     {
         if(await confirmMsg(`Undo selected transaction?`))
         {
+            console.log(id);
+
             const body = JSON.stringify({ id });
             console.log(body);
 
@@ -176,7 +178,10 @@
         const regex = new RegExp(filter.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&'), "i");
         const filted = map_logs(logs).filter(v1 => lTypes.some(v2 => v1[v2].match(regex)));
 
-        return filted.map(v => object_map(v, (k,v) => lTypes.includes(k) ? v.replace(regex, rStr) : v));
+        let _tmp = filted.map(v => object_map(v, (k,v) => lTypes.includes(k) ? v.replace(regex, rStr) : v));
+
+        console.log(_tmp);
+        return _tmp;
     }
 
     function map_logs(logs) {
