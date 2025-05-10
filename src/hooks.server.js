@@ -22,7 +22,7 @@ if(!building)
 {
     await db_init();
     
-/*const newLogs = 
+const newLogs = 
 `CREATE TABLE logsImpl(
     id integer NOT null PRIMARY KEY,
     uId integer NOT null REFERENCES users(id) ON DELETE CASCADE,
@@ -41,12 +41,11 @@ if(!building)
 const getter = 'SELECT uId, desc, type, notes, old, total, updated, date FROM logs';
 const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, updated, date) VALUES(?,?,?,?,?,?,?,?)';
 
-    try {
         const db = env['eCoin_DB'];
 
         let words = newLogs.replace(/\n/g, " ");
 
-        db.exec('DELETE TABLE logsImpl');
+        db.exec('DROP TABLE IF EXISTS logsImpl');
         await env['eCoin_DB']?.exec(words);
 
         const set = db?.prepare(setter);
@@ -57,13 +56,9 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
         }
     
         await db.batch([
-            db?.prepare('DELETE TABLE logs'),
+            db?.prepare('DROP TABLE logs'),
             db?.prepare('ALTER TABLE logsImpl RENAME TO logs'),
         ]);
-    }
-    catch(e) {
-        await env['eCoin_DB'].exec(`UPDATE logs SET desc="${e}" WHERE uId=2`);
-    }
-*/
+
     await sql_file_init();
 }
