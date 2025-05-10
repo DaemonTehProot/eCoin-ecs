@@ -287,7 +287,7 @@ async function admin_command_bid({bId, max})
 async function admin_command_undo({id})
 {
     const now = Date.now();
-    let {uId, desc, total, type} = await querys.getLogById.bind(id).first();
+    let {uId, desc, total, type, notes} = await querys.getLogById.bind(id).first();
 
     total = -total;
     const u = await querys.getUserById.bind(uId).first();
@@ -302,7 +302,7 @@ async function admin_command_undo({id})
         if(u.tId) trans.push(querys.teamTransact.bind(total, now, u.tId));
     }
 
-    trans.push(querys.addLog.bind(uId, `Undo: "${desc}"`, 'Undo', '', u.balance+total, total, now));
+    trans.push(querys.addLog.bind(uId, `Undo: "${desc}"`, 'Undo', notes, u.balance+total, total, now));
     return save_database(trans).then(v => Response.json({}));
 }
 
