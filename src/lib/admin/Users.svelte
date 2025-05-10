@@ -39,8 +39,8 @@
     $: { activeUser = users.find(v => v.id===activeUser?.id) ?? null; }
     $: { in_state = activeUser ? null : null; }
 
-    $: grid_cols = (in_state==='delete') ? `grid-cols-[2fr_15fr_8fr_8fr_15fr_10fr_2fr]` 
-                                : `grid-cols-[2fr_15fr_8fr_8fr_15fr_10fr]`;
+    $: grid_cols = (in_state==='delete') ? `grid-cols-[15fr_8fr_8fr_15fr_10fr_2fr]` 
+                                : `grid-cols-[15fr_8fr_8fr_15fr_10fr]`;
 
     const nameSortFn = (a,b) => a.name.localeCompare(b.name);
     
@@ -224,7 +224,7 @@
         <div class={twMerge(`grid font-bold text-lg text-center py-1 
             border-b border-gray-200 dark:border-gray-700`, grid_cols)}
         >
-            <p>Id</p> <p>Name</p> <p>Balance</p> 
+            <p>Name</p> <p>Balance</p> 
             <p>Earnings</p> <p>Team</p> <p>Updated</p>
         </div>
 
@@ -238,7 +238,7 @@
                 <button class={twMerge(`grid py-1 w-full h-full items-center`, grid_cols)}
                     on:click={() => !in_state && (activeUser = user)}
                 >
-                    <p>{id}</p>
+                    <!--p>{id}</p-->
                     <p>{name}</p>
     
                     <p class={int2color(balance)}>{int2cash(balance)}</p>
