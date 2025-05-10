@@ -43,8 +43,10 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
 
     try {
         const db = env['eCoin_DB'];
-        
+
         let words = newLogs.replace(/\n/g, " ");
+
+        db.exec('DELETE TABLE logsImpl');
         await env['eCoin_DB']?.exec(words);
 
         const set = db?.prepare(setter);
