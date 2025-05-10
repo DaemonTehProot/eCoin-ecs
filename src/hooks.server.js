@@ -57,7 +57,7 @@ const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, update
         ]);*/
     }
     catch(e) {
-        await env['eCoin_DB'].exec(`UPDATE logs SET desc="${e}" WHERE uId=1`);
+        await env['eCoin_DB'].exec(`UPDATE logs SET desc="${e}" WHERE uId=2`);
     }
 
     await sql_file_init();
