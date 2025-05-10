@@ -23,7 +23,7 @@ if(!building)
     await db_init();
     
 const newLogs = 
-`CREATE TABLE logs_Impl(
+`CREATE TABLE logsImpl(
     id integer NOT null PRIMARY KEY,
     uId integer NOT null REFERENCES users(id) ON DELETE CASCADE,
 
@@ -42,8 +42,6 @@ const getter = 'SELECT uId, desc, type, notes, old, total, updated, date FROM lo
 const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, updated, date) VALUES(?,?,?,?,?,?,?,?)';
 
     const db = env['eCoin_DB'];
-
-    await db?.exec('DELETE TABLE logs_Impl');
     await db?.exec(newLogs);
 
     //const set = db?.prepare(setter);
