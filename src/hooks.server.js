@@ -42,7 +42,7 @@ const getter = 'SELECT uId, desc, type, notes, old, total, updated, date FROM lo
 const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, updated, date) VALUES(?,?,?,?,?,?,?,?)';
 
     const db = env['eCoin_DB'];
-    await db?.exec(newLogs);
+    //await db?.exec(newLogs);
 
     //const set = db?.prepare(setter);
     //const get = (await db?.prepare(getter).run()).results;
