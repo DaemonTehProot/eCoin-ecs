@@ -128,6 +128,7 @@
 
     async function undo_log(id) 
     {
+        console.log("Test Message");
         if(await confirmMsg(`Undo selected transaction?`))
         {
             const body = JSON.stringify({ id });
