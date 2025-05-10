@@ -235,7 +235,7 @@ async function admin_command_trans({pId, quant, tax, notes, ids})
             trans.push(querys.userTransact.bind(total, now, uId));
             trans.push(querys.addPurchase.bind(uId, u.cId, p.desc, notes ?? '', quant, now));
         } else {
-            if(p.type === 'Wage') total -= total*tax;
+            if(p.type === 'Wage') total -= Math.trunc(total*tax);
 
             trans.push(querys.adminTransact.bind(total, total, now, uId));
             if(u.tId) trans.push(querys.teamTransact.bind(total, now, u.tId));
