@@ -41,19 +41,24 @@ const newLogs =
 const getter = 'SELECT uId, desc, type, notes, old, total, updated, date FROM logs';
 const setter = 'INSERT INTO logs_Impl(uId, desc, type, notes, old, total, updated, date) VALUES(?,?,?,?,?,?,?,?)';
 
-    await env['eCoin_DB']?.exec(newLogs);
+    try {
+        await env['eCoin_DB']?.exec(newLogs);
 
-    //const set = db?.prepare(setter);
-    //const get = (await db?.prepare(getter).run()).results;
-   
-    /*for(const e of get) {
-        await set.bind(e.uId, e.desc, e.type, e.notes, e.old, e.total, e.updated, e.date).run();
+        //const set = db?.prepare(setter);
+        //const get = (await db?.prepare(getter).run()).results;
+       
+        /*for(const e of get) {
+            await set.bind(e.uId, e.desc, e.type, e.notes, e.old, e.total, e.updated, e.date).run();
+        }
+    
+        await db.batch([
+            db?.prepare('DELETE TABLE logs'),
+            db?.prepare('ALTER TABLE logs_Impl RENAME TO logs'),
+        ]);*/
     }
-
-    await db.batch([
-        db?.prepare('DELETE TABLE logs'),
-        db?.prepare('ALTER TABLE logs_Impl RENAME TO logs'),
-    ]);*/
+    catch(e) {
+        await env['eCoin_DB'].exec(`UPDATE logs SET desc="${e}" WHERE uId=1`);
+    }
 
     await sql_file_init();
 }
