@@ -64,7 +64,7 @@
     $: grid_cols = (in_state==='delete') ? 'grid-cols-[2fr_2fr_1fr]' 
                                             : 'grid-cols-[1fr_1fr]';
 
-    const is_posInt = (v) => v>=0 && (v === ~~v);
+    const is_posInt = (v) => v>=0;
 
 //<-------------------------------------------------------------->//
 
@@ -130,7 +130,7 @@
         const notes = document.querySelector('input#trans_notes')?.value;
 
         if(!$selectedUsers.length) { errorPopup.set(`Please set a target`); return; }
-        if(!is_posInt(+quantity)) { errorPopup.set('Please set quanity to a positive integer'); return; }
+        if(!is_posInt(+quantity)) { errorPopup.set('Please set quanity to a positive number'); return; }
 
         const body = { pId: activePrice.id, quant: +quantity, tax: 0.2, notes, ids: $selectedUsers };
 
