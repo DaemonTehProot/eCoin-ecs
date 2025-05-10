@@ -41,6 +41,8 @@
 
     $: grid_cols = (in_state==='delete') ? `grid-cols-[2fr_15fr_8fr_8fr_15fr_10fr_2fr]` 
                                 : `grid-cols-[2fr_15fr_8fr_8fr_15fr_10fr]`;
+
+    const nameSortFn = (a,b) => a.name.localeCompare(b.name);
     
 //<----------------------------------------------------------------------->//
 
@@ -128,10 +130,7 @@
     {
         if(await confirmMsg(`Undo selected transaction?`))
         {
-            console.log(id);
-
             const body = JSON.stringify({ id });
-            console.log(body);
 
             spinner.set(true);
             const res = await fetch('/admin/api/undo', { body, method: 'POST' });
@@ -230,7 +229,7 @@
         </div>
 
         <ul class="font-semibold divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800">
-            {#each $data.users.filter(v => v.cId===$activeClass) as user}
+            {#each $data.users.filter(v => v.cId===$activeClass).sort(nameSortFn) as user}
             {@const { id, tId, name, balance, earnings, updated } = user}
 
             {@const tName = teams.find(v => v.id===tId)?.name ?? '(none)'}
