@@ -2,7 +2,7 @@
 
 import { env } from '$env/dynamic/private';
 
-import { error } from '@sveltejs/kit';
+import { error, isHttpError } from '@sveltejs/kit';
 import { querys, save_database } from '$lib/server/database';
 
 import { verify_array_type, verify_object_types, rightFit, async_filter } from '$lib/server/utils';
@@ -302,7 +302,7 @@ async function admin_command_undo({id})
         if(u.tId) trans.push(querys.teamTransact.bind(total, now, u.tId));
     }
 
-    trans.push(querys.addLog.bind(uId, `Undo: "${desc}"`, 'Undo', notes, u.balance+total, total, now));
+    trans.push(querys.addLog.bind(uId, `Undo: "${desc}"`, 'Undo', notes ?? '', u.balance+total, total, now));
     return save_database(trans).then(v => Response.json({}));
 }
 
@@ -320,20 +320,21 @@ export async function POST({cookies, request, params})
         switch(params.cmd) {
         case 'ping': return Response.json(Date.now());
             
-        case 'get': return admin_command_get(args);
-        case 'add': return admin_command_add(args);
-        case 'del': return admin_command_del(args);
-        case 'set': return admin_command_set(args);
+        case 'get': return await admin_command_get(args);
+        case 'add': return await admin_command_add(args);
+        case 'del': return await admin_command_del(args);
+        case 'set': return await admin_command_set(args);
     
-        case 'bid': return admin_command_bid(args);
-        case 'undo': return admin_command_undo(args);
-        case 'trans': return admin_command_trans(args);
-        case 'passwd': return admin_command_passwd(args);
+        case 'bid': return await admin_command_bid(args);
+        case 'undo': return await admin_command_undo(args);
+        case 'trans': return await admin_command_trans(args);
+        case 'passwd': return await admin_command_passwd(args);
         
-        case 'logout': return session_logout(cookies, 'activeAdmins');
+        case 'logout': return await session_logout(cookies, 'activeAdmins');
         }
     } catch(e) {
-        error(500, `Internal Error: ${e}`);
+        if(isHttpError(e)) throw e;
+        error(500, `${e}`);
     }
 
     error(422, `Invalid command: ${params.cmd}`);
