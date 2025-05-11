@@ -421,7 +421,7 @@
                         </DropdownItem>
     
                         <Dropdown placement="right-start" class="py-0 w-fit">
-                        {#each users as {name, id}}
+                        {#each users.sort((a,b) => a.name.localeCompare(b.name)) as {name, id}}
                             <li class="flex flex-row justify-left items-center text-left font-medium py-2 px-4 text-sm w-full">
                                 <input type="checkbox" value={id} bind:group={__selectedUsers}
                                     class={inputClass(false, 'primary', true, true, 'me-2', '')} />
