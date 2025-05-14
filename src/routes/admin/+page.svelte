@@ -104,9 +104,17 @@
     async function set_class_mp(mp) 
     {
         mp = clamp(+mp, 1, 8) - 1;
-
-        if(await confirmMsg(`Set ${activeClassObj.name}'s MP to ${mp+1}?`))
-            send_set_generic('classes', [get(activeClass)], {mp}, spinner, serverData);
+        
+        if(await confirmMsg(`Set ${activeClassObj.name}'s MP to ${mp+1}?`)) 
+        {
+            const active = get(activeClass);
+            await send_set_generic('classes', [active], {mp}, spinner, serverData);
+            
+            if((mp % 1) == 0) { // Is Even Check
+                const users = get(serverData)['users'].filter(v => v.cId === active).map(v => v.id);
+                await send_set_generic('users', users, { earnings: 0 }, spinner, serverData);
+            }
+        }
     }
 
 //>========================================================<//

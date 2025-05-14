@@ -136,8 +136,6 @@
         const tax = enableTax ? 0.2 : 0.0;
         const body = { pId: activePrice.id, quant: +quantity, tax, notes, ids: $selectedUsers };
 
-        enableTax = false;
-
         spinner.set(true);
         const res = await fetch('/admin/api/trans', { body: JSON.stringify(body), method: 'POST' });
 
@@ -151,6 +149,11 @@
     function reset_selected_action() { 
         __selectedUsers.length = 0;
         __selectedTeams.length = 0;
+    }
+
+    /** @type {import('svelte/action').Action} */
+    function enable_tax_action() {
+        enableTax = true;
     }
 </script>
 
@@ -394,7 +397,7 @@
     <Modal open size="xs" classBody="space-y-0"
         on:close={() => in_state==="trans" && (in_state=null)}
     >
-        <div class="flex flex-col w-full gap-y-6">
+        <div class="flex flex-col w-full gap-y-6" use:enable_tax_action>
             <h3 class="text-2xl font-semibold text-gray-900 dark:text-white">
                 Run a Transaction
             </h3>
@@ -404,7 +407,7 @@
 
             <Checkbox bind:checked={enableTax} class="font-semibold" id="trans_tax">Enable Tax</Checkbox>
 
-            <div class="gap-y-3">
+            <div class="gap-y-3" >
                 <div class="flex flex-row items-center font-semibold gap-1" use:reset_selected_action>
                     Targets:
     
