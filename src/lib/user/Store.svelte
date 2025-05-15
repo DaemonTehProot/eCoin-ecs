@@ -7,7 +7,7 @@
     import { onMount, getContext } from "svelte";
     import { int2color, int2cash, errorPopup } from "$lib/common/utils";
 
-    import { Card, Tabs, TabItem, Heading, Button, Input } from "flowbite-svelte";
+    import { Card, Tabs, TabItem, Heading, Button, Input, FloatingLabelInput } from "flowbite-svelte";
     import { AngleLeftOutline, PlusOutline, MinusOutline } from "flowbite-svelte-icons";
 
 
@@ -41,6 +41,7 @@
 
 //>================================================================<//
 
+    let notes = "";
     let quantity = 1;
     $: balance = $data.user[0].balance;
 
@@ -79,8 +80,14 @@
     }
 
 
-    const trans_bid = (bId, amount) => trans_generic('/user/api/bid', {bId, amount});
-    const trans_purchase = (pId, amount) => trans_generic('/user/api/trans', {pId, amount});
+    const trans_bid = (bId) => trans_generic('/user/api/bid', {bId, amount:quantity, notes});
+    const trans_purchase = (pId) => trans_generic('/user/api/trans', {pId, amount:quantity, notes});
+
+    /** @type {import("svelte/action").Action} */
+    function reset_info_action() {
+        notes = "";
+        quantity = 1;
+    }
 </script>
 
 <div id="tab-Store" class="flex justify-evenly gap-4">
@@ -95,7 +102,7 @@
     {@const item = prices.find(v => v.id === priceIdx)}
     {@const avail = (item.cost > 0) ? Infinity : Math.max(Math.trunc(balance / -item.cost), 0)}
 
-        <div class="mb-3">
+        <div class="mb-3" use:reset_info_action>
             <div class="flex items-center gap-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                 <AngleLeftOutline withEvents on:click={() => priceIdx = -1} size="lg" class="
                     text-black dark:text-white hover:text-primary-600 dark:hover:text-primary-500" />
@@ -125,6 +132,11 @@
                     </div>
                 </div>
 
+                <div class="flex justify-between align-center mb-3">
+                    <div class="text-base font-medium text-black dark:text-white">Notes:</div>
+                    <FloatingLabelInput style="outlined" classDiv="w-1/2 md:w-1/3" size="small"/>
+                </div>
+
                 <div class="flex justify-between">
                     <p class="text-base font-medium text-black dark:text-white">Subtotal:</p>
                     <p class={`${int2color(item.cost)} font-semibold`}>{int2cash(item.cost)}</p>
@@ -148,7 +160,7 @@
     {:else if bidIdx >= 0}
     {@const {id, desc, amount} = bids.find(v => v.id === bidIdx)}
 
-        <div class="mb-3">
+        <div class="mb-3" use:reset_info_action>
             <div class="flex items-center gap-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                 <AngleLeftOutline withEvents on:click={() => bidIdx = -1} size="lg" class="
                     text-black dark:text-white hover:text-primary-500 dark:hover:text-primary-600" />
