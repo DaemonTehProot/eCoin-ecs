@@ -7,8 +7,8 @@
     import { onMount, getContext } from "svelte";
     import { int2color, int2cash, errorPopup } from "$lib/common/utils";
 
-    import { Card, Tabs, TabItem, Heading, Button, Input } from "flowbite-svelte";
     import { AngleLeftOutline, PlusOutline, MinusOutline } from "flowbite-svelte-icons";
+    import { Card, Tabs, TabItem, Heading, Button, Input, FloatingLabelInput } from "flowbite-svelte";
 
 
     /** @type {import("svelte/store").Writable<any>} */ const data = getContext('serverData');
@@ -41,6 +41,7 @@
 
 //>================================================================<//
 
+    let notes = "";
     let quantity = 1;
     $: balance = $data.user[0].balance;
 
@@ -79,8 +80,14 @@
     }
 
 
-    const trans_bid = (bId, amount) => trans_generic('/user/api/bid', {bId, amount});
-    const trans_purchase = (pId, amount) => trans_generic('/user/api/trans', {pId, amount});
+    const trans_bid = (bId) => trans_generic('/user/api/bid', {bId, amount:quantity, notes});
+    const trans_purchase = (pId) => trans_generic('/user/api/trans', {pId, amount:quantity, notes});
+
+    /** @type {import("svelte/action").Action} */
+    function reset_trans_action() {
+        notes = "";
+        quanity = 1;
+    }
 </script>
 
 <div id="tab-Store" class="flex justify-evenly gap-4">
@@ -95,7 +102,7 @@
     {@const item = prices.find(v => v.id === priceIdx)}
     {@const avail = (item.cost > 0) ? Infinity : Math.max(Math.trunc(balance / -item.cost), 0)}
 
-        <div class="mb-3">
+        <div class="mb-3" use:reset_trans_action>
             <div class="flex items-center gap-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                 <AngleLeftOutline withEvents on:click={() => priceIdx = -1} size="lg" class="
                     text-black dark:text-white hover:text-primary-600 dark:hover:text-primary-500" />
@@ -125,6 +132,11 @@
                     </div>
                 </div>
 
+                <div class="flex justify-between mb-3">
+                    <p class="text-base font-medium text-black dark:text-white">Notes:</p>
+                    <FloatingLabelInput bind:value={notes} size="small" style="outlined" classDiv="w-1/2 md:w-1/3" classInput="p-2.5"/>
+                </div>
+
                 <div class="flex justify-between">
                     <p class="text-base font-medium text-black dark:text-white">Subtotal:</p>
                     <p class={`${int2color(item.cost)} font-semibold`}>{int2cash(item.cost)}</p>
@@ -141,14 +153,14 @@
                 </div>
 
                 <div class="w-full h-fit flex justify-center">
-                    <Button on:click={() => trans_purchase(item.id, quantity)} class="w-1/2 outline-none">Purchase</Button>
+                    <Button on:click={() => trans_purchase(item.id)} class="w-1/2 outline-none">Purchase</Button>
                 </div>
             </div>
         </div>
     {:else if bidIdx >= 0}
     {@const {id, desc, amount} = bids.find(v => v.id === bidIdx)}
 
-        <div class="mb-3">
+        <div class="mb-3" use:reset_trans_action>
             <div class="flex items-center gap-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                 <AngleLeftOutline withEvents on:click={() => bidIdx = -1} size="lg" class="
                     text-black dark:text-white hover:text-primary-500 dark:hover:text-primary-600" />
@@ -179,7 +191,7 @@
                 </div>
 
                 <div class="w-full h-fit flex justify-center">
-                    <Button on:click={() => trans_bid(id, quantity)} class="w-1/2 outline-none">Place Bid</Button>
+                    <Button on:click={() => trans_bid(id)} class="w-1/2 outline-none">Place Bid</Button>
                 </div>
             </div>
         </div>
