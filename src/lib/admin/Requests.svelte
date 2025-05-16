@@ -20,7 +20,7 @@
     let selected = [];
     let in_delete = false;
 
-    $: grid_cols = in_delete ? `grid-cols-[5fr_8fr_10fr_5fr_2fr]` : `grid-cols-[5fr_8fr_10fr_5fr]`;
+    $: grid_cols = in_delete ? `grid-cols-[5fr_10fr_10fr_5fr_5fr_2fr]` : `grid-cols-[5fr_10fr_10fr_5fr_5fr]`;
 
     
     async function delete_selected()
@@ -55,18 +55,18 @@
             border-b border-gray-200 dark:border-gray-700 py-1`, grid_cols)}
         >
             <p>User</p> <p>Desc</p> 
-            <p>Quantity</p> <p>Date</p>
+            <p>Notes</p> <p>Quantity</p> <p>Date</p>
         </div>
 
         <ul class="font-semibold divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800">
-            {#each purchases.toReversed() as { id, uId, desc, quant, updated }}
+            {#each purchases.toReversed() as { id, uId, desc, notes, quant, updated }}
             
             {@const date = new Date(updated).toLocaleDateString()}
             {@const uName = users.find(v => v.id===uId)?.name ?? '(Unknown)'}
 
             <li class={twMerge(`text-center py-1 text-md w-full h-fit grid`, grid_cols)}>
                 <p>{uName}</p> <p>{desc}</p>
-                <p>{quant}</p> <p>{date}</p>
+                <p>{notes}</p> <p>{quant}</p> <p>{date}</p>
 
                 {#if in_delete}
                     <input type="checkbox" value={id} bind:group={selected} 
