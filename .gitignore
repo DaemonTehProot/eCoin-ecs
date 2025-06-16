@@ -8,6 +8,9 @@ node_modules
 /.svelte-kit
 /build
 
+# API keys
+wrangler.json
+
 # OS
 .DS_Store
 Thumbs.db
