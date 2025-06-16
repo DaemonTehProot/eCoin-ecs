@@ -147,8 +147,8 @@
 
     /** @type {import('svelte/action').Action} */
     function reset_selected_action() { 
-        __selectedUsers.length = 0;
-        __selectedTeams.length = 0;
+        __selectedUsers = [];
+        __selectedTeams = [];
     }
 
     /** @type {import('svelte/action').Action} */
@@ -405,8 +405,9 @@
             <FloatingLabelInput classInput="font-semibold" id="trans_notes">Notes</FloatingLabelInput>
             <FloatingLabelInput classInput="font-semibold" id="trans_quant" type="number" bind:value={quantity}>Quantity</FloatingLabelInput>
 
+        {#if activePrice.type==='Wage'}
             <Checkbox bind:checked={enableTax} class="font-semibold" id="trans_tax">Enable Tax</Checkbox>
-
+        {/if}
             <div class="gap-y-3" >
                 <div class="flex flex-row items-center font-semibold gap-1" use:reset_selected_action>
                     Targets:
